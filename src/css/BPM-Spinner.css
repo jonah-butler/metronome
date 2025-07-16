@@ -1,0 +1,25 @@
+.bpm-spinner_container {
+  position: relative;
+  width: 300px;
+  border: 2px solid black;
+  height: 300px;
+  border-radius: 50%;
+  cursor: grab;
+  user-select: none;
+  box-shadow: 0px 1px 0px 4px rgba(0, 0, 0, 0.3);
+}
+
+.bpm-spinner_container:active {
+  cursor: grabbing;
+}
+
+.bpm-spinner {
+  position: absolute;
+  width: 100px;
+  height: 100px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgb(63, 62, 62);
+  border-radius: 50%;
+}
