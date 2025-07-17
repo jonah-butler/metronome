@@ -1,42 +1,58 @@
+import { EventEmitter } from 'events';
 import { type NotePlayer } from './oscillator';
 
 type RhythmParams = {
-  beats: number; // total beats in cycle (e.g. 4 for 4/4)
-  subdivision: number; // fraction (1, 1/2, 1/3, etc.)
-  sound: NotePlayer;
-  bpm: number;
-  poly?: number; // for polyrhythms, e.g. 3 over 4
-};
-
-export class Rhythm {
-  private activeOscillators: OscillatorNode[] = [];
-
-  startTime = 0;
-  beatsElapsed = 0;
-  nextNote = 0;
-
   beats: number;
   subdivision: number;
   sound: NotePlayer;
   bpm: number;
+  poly?: number;
+};
+
+export class Rhythm extends EventEmitter {
+  private killed = true;
+  private activeOscillators: OscillatorNode[] = [];
+
+  bpm: number;
   poly: number;
+  beats: number;
+  sound: NotePlayer;
+  nextNote = 0;
+  beatTrack: number;
+  subdivision: number;
 
   constructor({ beats, subdivision, sound, bpm, poly }: RhythmParams) {
+    super();
     this.beats = beats;
     this.subdivision = subdivision;
     this.sound = sound;
     this.bpm = bpm;
     this.poly = poly ?? beats;
+    this.beatTrack = 1;
   }
 
   private spb(bpm: number): number {
     return (this.beats * (60 / bpm)) / this.poly;
   }
 
+  private cleanFloat(value: number, threshold = 1e-15): number {
+    const rounded = Math.round(value);
+    return Math.abs(rounded - value) < threshold ? rounded : value;
+  }
+
+  private trackBeat(): void {
+    const beatSource = this.beats !== this.poly ? this.poly : this.beats;
+    const rawValue = (this.beatTrack % beatSource) + 1 * this.subdivision;
+    this.beatTrack = this.cleanFloat(rawValue);
+  }
+
+  private get isBeatOne(): boolean {
+    return this.beatTrack === 1;
+  }
+
   init(currentTime: number): void {
-    this.startTime = currentTime;
-    this.beatsElapsed = 0;
     this.nextNote = currentTime;
+    this.killed = false;
   }
 
   advance(targetBpm: number, currentTime: number): void {
@@ -44,28 +60,36 @@ export class Rhythm {
     const step = spb * this.subdivision;
 
     this.nextNote = Math.max(this.nextNote + step, currentTime + step);
-    this.bpm = targetBpm; // no gradual ramp here
+    this.bpm = targetBpm;
+
+    this.trackBeat();
   }
 
   play(): void {
-    console.log('playing: ', this.nextNote);
-    const osc = this.sound.play(this.nextNote);
+    const tempBeat = this.beatTrack;
+
+    const osc = this.sound.play(this.nextNote, this.isBeatOne);
 
     this.activeOscillators.push(osc);
 
     osc.onended = (): void => {
+      if (!this.killed) {
+        this.emit('beatChange', tempBeat);
+      }
+
       this.activeOscillators = this.activeOscillators.filter((o) => o !== osc);
     };
   }
 
   kill(): void {
+    this.killed = true;
+
     for (const osc of this.activeOscillators) {
-      try {
-        osc.stop();
-      } catch (err) {
-        console.warn('osc stop failed', err);
-      }
+      osc.stop();
     }
+
+    this.beatTrack = 1;
+    this.emit('beatChange', 1);
     this.activeOscillators = [];
   }
 }

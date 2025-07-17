@@ -1,14 +1,24 @@
-import { useEffect, useRef, useState, type PointerEvent as PE } from 'react';
+import { useRef, useState, type PointerEvent as PE } from 'react';
+import PowerButton from '../assets/power-button.svg?react';
 import '../css/BPM-Spinner.css';
 
 interface BPMSpinnerProps {
   bpm: number;
+  isRunning: boolean;
   updateBPM: (value: number) => void;
+  togglePlayback: () => void;
 }
 
-function BPMSpinner({ bpm, updateBPM }: BPMSpinnerProps) {
+function BPMSpinner({
+  bpm,
+  isRunning,
+  updateBPM,
+  togglePlayback,
+}: BPMSpinnerProps) {
   const [rotation, setRotation] = useState(0);
   const [count, setCount] = useState(bpm);
+  const [styleCount, setStyleCount] = useState(bpm);
+  const countRef = useRef(count);
   const bpmSpinnerRef = useRef<HTMLDivElement | null>(null);
 
   let startAngle = 0;
@@ -44,12 +54,13 @@ function BPMSpinner({ bpm, updateBPM }: BPMSpinnerProps) {
         return ((next % 360) + 360) % 360;
       });
 
-      accumulatedDelta += delta * 0.05;
+      accumulatedDelta += delta * 0.09;
 
       if (Math.abs(accumulatedDelta) >= 1) {
         const change = Math.round(accumulatedDelta);
         setCount((prev) => {
-          const next = clamp(prev + change, 1, 350);
+          const next = clamp(prev + change, 20, 250);
+          countRef.current = next;
           return next;
         });
 
@@ -61,30 +72,82 @@ function BPMSpinner({ bpm, updateBPM }: BPMSpinnerProps) {
     const handleUp = () => {
       window.removeEventListener('pointermove', handleMove);
       window.removeEventListener('pointerup', handleUp);
+      updateBPM(countRef.current);
+      setStyleCount(countRef.current);
     };
 
     window.addEventListener('pointermove', handleMove);
     window.addEventListener('pointerup', handleUp);
   }
 
-  useEffect(() => {
-    updateBPM(count);
-  }, [count, updateBPM]);
-
   return (
-    <>
+    <div className="bpm-spinner">
       <section
         ref={bpmSpinnerRef}
         onPointerDown={onPointerDown}
-        className="bpm-spinner_container"
+        className="bpm-spinner__rotary"
         style={{
           transform: `rotate(${rotation}deg)`,
         }}
       >
-        BPM: {count}
+        <div className="circle">
+          <div>
+            <div>
+              <div>
+                <div>
+                  <div>
+                    <div>
+                      <div>
+                        <div>
+                          <div>
+                            <div>
+                              <div>
+                                <div>
+                                  <div>
+                                    <div>
+                                      <div>
+                                        <div>
+                                          <div>
+                                            <div>
+                                              <div>
+                                                <div></div>
+                                              </div>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </section>
-      <div className="bpm-spinner"></div>
-    </>
+      <div
+        className={`${isRunning ? 'running ' : ''}bpm-spinner__button`}
+        style={{ '--tempo': `${60 / styleCount}s` } as React.CSSProperties}
+      >
+        <div>
+          <h4>{count}</h4>
+          <h5>BPM</h5>
+        </div>
+
+        <div className="play-button__container">
+          <button onClick={togglePlayback} className="play-button">
+            <PowerButton />
+          </button>
+        </div>
+      </div>
+    </div>
   );
 }
 

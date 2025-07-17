@@ -5,8 +5,21 @@ type ConductorParams = {
   bpm: number;
 };
 
+export const Subdivisions = {
+  base: 1,
+  duplet: 1 / 2,
+  triplet: 1 / 3,
+  quadruplet: 1 / 4,
+  quintuplets: 1 / 5,
+  sextuplet: 1 / 6,
+  septuplet: 1 / 7,
+  octuplet: 1 / 8,
+  nonuplet: 1 / 9,
+  decuplet: 1 / 10,
+};
+
 export class Conductor {
-  static LOOK_AHEAD = 0.4;
+  static LOOK_AHEAD = 0.2;
 
   private isRunning = false;
   private rhythms: Rhythm[] = [];
@@ -19,23 +32,23 @@ export class Conductor {
     this.bpm = bpm;
   }
 
-  get currentTime(): number {
+  private get currentTime(): number {
     return this.audioCtx.currentTime;
   }
 
   private schedule(): void {
     if (!this.isRunning) return;
 
-    const lookAheadEnd = this.currentTime + Conductor.LOOK_AHEAD;
-
     for (const rhythm of this.rhythms) {
-      while (rhythm.nextNote < lookAheadEnd) {
+      while (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
         rhythm.play();
         rhythm.advance(this.bpm, this.currentTime);
       }
     }
 
-    requestAnimationFrame(() => this.schedule());
+    if (this.isRunning) {
+      requestAnimationFrame(() => this.schedule());
+    }
   }
 
   addRhythm(...rhythms: Rhythm[]): void {
@@ -58,11 +71,18 @@ export class Conductor {
     for (const rhythm of this.rhythms) {
       rhythm.kill();
     }
+
     return this.isRunning;
   }
 
-  update(bpm: number): void {
-    this.bpm = bpm;
-    // No direct call to rhythm.advance() here — let scheduler handle it with graceful ramp
+  update(bpm: number): boolean {
+    if (!this.isRunning) {
+      this.bpm = bpm;
+    } else {
+      this.stop();
+      this.bpm = bpm;
+      this.start();
+    }
+    return this.isRunning;
   }
 }

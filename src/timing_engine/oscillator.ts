@@ -1,5 +1,5 @@
 export interface NotePlayer {
-  play(startTime: number): OscillatorNode;
+  play(startTime: number, isFirst: boolean): OscillatorNode;
 }
 
 export class Oscillator implements NotePlayer {
@@ -11,12 +11,18 @@ export class Oscillator implements NotePlayer {
     this.frequency = frequency;
   }
 
-  play(startTime: number): OscillatorNode {
+  play(startTime: number, isFirst: boolean): OscillatorNode {
     const osc = this.audioCtx.createOscillator();
     osc.type = 'square';
     const gain = this.audioCtx.createGain();
 
     osc.frequency.setValueAtTime(this.frequency, startTime);
+
+    if (isFirst) {
+      osc.frequency.setValueAtTime(this.frequency + 200, startTime);
+    } else {
+      osc.frequency.setValueAtTime(this.frequency, startTime);
+    }
 
     osc.connect(gain);
 
