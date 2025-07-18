@@ -44,14 +44,14 @@ button {
   font-family: inherit;
   background-color: #090909;
   cursor: pointer;
-  transition: border-color 0.25s;
+  user-select: none;
 }
 button:hover {
   border-color: #f821ad;
 }
 button:focus,
 button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  outline: 4px auto #f821ad;
 }
 
 @media (prefers-color-scheme: light) {

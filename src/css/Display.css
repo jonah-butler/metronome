@@ -1,6 +1,7 @@
 .display_container {
-  min-width: 900px;
-  max-width: 1280px;
+  /* min-width: 900px; */
+  max-width: 100%;
+  overflow: hidden;
   /* background: #101010; */
   padding: 2rem;
   border-radius: 5px;

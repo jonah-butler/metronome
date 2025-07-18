@@ -40,8 +40,27 @@ export class Rhythm extends EventEmitter {
     return Math.abs(rounded - value) < threshold ? rounded : value;
   }
 
+  private isFloat(value: number): boolean {
+    return !Number.isInteger(value);
+  }
+
+  private get isSubdividedNote(): boolean {
+    return this.isFloat(this.beatTrack);
+  }
+
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
+
+    // let rawValue: number;
+    // console.log(beatSource + 1 - this.subdivision);
+    // if (
+    //   this.beatTrack <= beatSource
+    //   // this.beatTrack <= beatSource + 1 - this.subdivision
+    // ) {
+    //   rawValue = (this.beatTrack % (beatSource + 1)) + 1 * this.subdivision;
+    // } else {
+    //   rawValue = (this.beatTrack % beatSource) + 1 * this.subdivision;
+    // }
     const rawValue = (this.beatTrack % beatSource) + 1 * this.subdivision;
     this.beatTrack = this.cleanFloat(rawValue);
   }
@@ -68,7 +87,11 @@ export class Rhythm extends EventEmitter {
   play(): void {
     const tempBeat = this.beatTrack;
 
-    const osc = this.sound.play(this.nextNote, this.isBeatOne);
+    const osc = this.sound.play(
+      this.nextNote,
+      this.isBeatOne,
+      this.isSubdividedNote,
+    );
 
     this.activeOscillators.push(osc);
 

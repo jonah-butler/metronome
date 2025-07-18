@@ -1,5 +1,9 @@
 export interface NotePlayer {
-  play(startTime: number, isFirst: boolean): OscillatorNode;
+  play(
+    startTime: number,
+    isFirstNote: boolean,
+    isSubdividedNote: boolean,
+  ): OscillatorNode;
 }
 
 export class Oscillator implements NotePlayer {
@@ -11,15 +15,21 @@ export class Oscillator implements NotePlayer {
     this.frequency = frequency;
   }
 
-  play(startTime: number, isFirst: boolean): OscillatorNode {
+  play(
+    startTime: number,
+    isFirstNote: boolean,
+    isSubdividedNote: boolean,
+  ): OscillatorNode {
     const osc = this.audioCtx.createOscillator();
     osc.type = 'square';
     const gain = this.audioCtx.createGain();
 
     osc.frequency.setValueAtTime(this.frequency, startTime);
 
-    if (isFirst) {
+    if (isFirstNote) {
       osc.frequency.setValueAtTime(this.frequency + 200, startTime);
+    } else if (isSubdividedNote) {
+      osc.frequency.setValueAtTime(this.frequency - 50, startTime);
     } else {
       osc.frequency.setValueAtTime(this.frequency, startTime);
     }

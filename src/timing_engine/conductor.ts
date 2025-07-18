@@ -10,7 +10,7 @@ export const Subdivisions = {
   duplet: 1 / 2,
   triplet: 1 / 3,
   quadruplet: 1 / 4,
-  quintuplets: 1 / 5,
+  quintuplet: 1 / 5,
   sextuplet: 1 / 6,
   septuplet: 1 / 7,
   octuplet: 1 / 8,
@@ -53,6 +53,17 @@ export class Conductor {
 
   addRhythm(...rhythms: Rhythm[]): void {
     this.rhythms = [...this.rhythms, ...rhythms];
+  }
+
+  removeRhythms(): void {
+    if (this.isRunning) {
+      this.stop();
+    }
+
+    for (const rhythm of this.rhythms) {
+      rhythm.removeAllListeners();
+    }
+    this.rhythms = [];
   }
 
   start(): boolean {
