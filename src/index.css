@@ -46,15 +46,17 @@ button {
   cursor: pointer;
   user-select: none;
 }
+
 button:hover {
   border-color: #f821ad;
 }
+
 button:focus,
 button:focus-visible {
   outline: 4px auto #f821ad;
 }
 
-@media (prefers-color-scheme: light) {
+/* @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
     background-color: #ffffff;
@@ -65,4 +67,4 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
-}
+} */

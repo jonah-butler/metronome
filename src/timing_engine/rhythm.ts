@@ -35,7 +35,7 @@ export class Rhythm extends EventEmitter {
     return (this.beats * (60 / bpm)) / this.poly;
   }
 
-  private cleanFloat(value: number, threshold = 1e-15): number {
+  private cleanFloat(value: number, threshold = 1e-12): number {
     const rounded = Math.round(value);
     return Math.abs(rounded - value) < threshold ? rounded : value;
   }
@@ -86,6 +86,9 @@ export class Rhythm extends EventEmitter {
 
   play(): void {
     const tempBeat = this.beatTrack;
+
+    console.log(this.beatTrack);
+    // console.log(this.isSubdividedNote);
 
     const osc = this.sound.play(
       this.nextNote,

@@ -222,8 +222,10 @@ function App() {
   return (
     <>
       <section>
-        <span>{subdivision.icon}</span>
-        {usePolyrhythm && <span>{polySubdivision.icon}</span>}
+        <div className="absolute-note-container">
+          <span>{subdivision.icon}</span>
+          {usePolyrhythm && <span>{polySubdivision.icon}</span>}
+        </div>
         <Display
           isRunning={isRunning}
           bpm={bpm}

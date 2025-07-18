@@ -6,6 +6,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  position: relative;
 }
 
 .logo {
@@ -51,8 +52,8 @@
 }
 
 svg.note-svg {
-  max-width: 60px;
-  max-height: 60px;
+  max-width: 45px;
+  max-height: 45px;
 }
 svg.note-svg path {
   fill: #f821ad !important;
@@ -72,6 +73,7 @@ svg.note-svg path {
   align-items: flex-end;
   gap: 1rem;
   flex-direction: row;
+  margin-bottom: 4rem;
 }
 
 .polyrhythm-container {
@@ -95,4 +97,13 @@ button.inactive {
 
 .polyrhythm-header-container h3 {
   margin-top: 0px;
+}
+
+.absolute-note-container {
+  position: absolute;
+  top: 5px;
+  left: 5px;
+  background: rgba(36, 36, 36, 0.5);
+  border-radius: 5px;
+  padding: 5px;
 }
