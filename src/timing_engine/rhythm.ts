@@ -5,7 +5,6 @@ type RhythmParams = {
   beats: number;
   subdivision: number;
   sound: NotePlayer;
-  bpm: number;
   poly?: number;
 };
 
@@ -13,7 +12,6 @@ export class Rhythm extends EventEmitter {
   private killed = true;
   private activeOscillators: OscillatorNode[] = [];
 
-  bpm: number;
   poly: number;
   beats: number;
   sound: NotePlayer;
@@ -21,12 +19,11 @@ export class Rhythm extends EventEmitter {
   beatTrack: number;
   subdivision: number;
 
-  constructor({ beats, subdivision, sound, bpm, poly }: RhythmParams) {
+  constructor({ beats, subdivision, sound, poly }: RhythmParams) {
     super();
     this.beats = beats;
     this.subdivision = subdivision;
     this.sound = sound;
-    this.bpm = bpm;
     this.poly = poly ?? beats;
     this.beatTrack = 1;
   }
@@ -51,16 +48,6 @@ export class Rhythm extends EventEmitter {
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
 
-    // let rawValue: number;
-    // console.log(beatSource + 1 - this.subdivision);
-    // if (
-    //   this.beatTrack <= beatSource
-    //   // this.beatTrack <= beatSource + 1 - this.subdivision
-    // ) {
-    //   rawValue = (this.beatTrack % (beatSource + 1)) + 1 * this.subdivision;
-    // } else {
-    //   rawValue = (this.beatTrack % beatSource) + 1 * this.subdivision;
-    // }
     const rawValue = (this.beatTrack % beatSource) + 1 * this.subdivision;
     this.beatTrack = this.cleanFloat(rawValue);
   }
@@ -79,16 +66,12 @@ export class Rhythm extends EventEmitter {
     const step = spb * this.subdivision;
 
     this.nextNote = Math.max(this.nextNote + step, currentTime + step);
-    this.bpm = targetBpm;
 
     this.trackBeat();
   }
 
   play(): void {
     const tempBeat = this.beatTrack;
-
-    console.log(this.beatTrack);
-    // console.log(this.isSubdividedNote);
 
     const osc = this.sound.play(
       this.nextNote,

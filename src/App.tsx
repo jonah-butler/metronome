@@ -11,33 +11,66 @@ import { Oscillator } from './timing_engine/oscillator';
 import { Rhythm } from './timing_engine/rhythm';
 
 function App() {
-  const [isRunning, setIsRunning] = useState(false);
+  /**
+   * +++++++++++++++++++
+   * Metronome Defaults
+   * +++++++++++++++++++
+   */
+  const defaultBpm = 70;
+  const defaultFrequency = 750;
+  const defaultBeatCount = beatCountData[3];
+
+  /**
+   * ++++++++++++++++++++
+   * Conductor Reference
+   * ++++++++++++++++++++
+   */
+  const conductor = useRef<Conductor | null>(null);
+
+  /**
+   * +++++++++++++++++
+   * Conductor State
+   * +++++++++++++++++
+   */
   const [bpm, setBPM] = useState(70);
-  const [currentBeat, setCurrentBeat] = useState(1);
-  const [polyBeat, setPolyBeat] = useState(1);
+  const [isRunning, setIsRunning] = useState(false);
 
-  const [beatCount, setBeatCount] = useState<DropdownOptions>(beatCountData[3]);
-  const [polyBeatCount, setPolyBeatCount] = useState<DropdownOptions>(
-    beatCountData[2],
-  );
+  /**
+   * +++++++++++++++++
+   * Metronome State
+   * +++++++++++++++++
+   */
+  const [frequency, setFrequency] = useState(defaultFrequency);
 
+  const [beatCount, setBeatCount] = useState<DropdownOptions>(defaultBeatCount);
   const [subdivision, setSubdivision] = useState<DropdownOptions>(
     subdivisionData[0],
+  );
+  // emitted from rhythm instance
+  const [currentBeat, setCurrentBeat] = useState(1);
+
+  /**
+   * +++++++++++++++++
+   * Polyrhythm State
+   * +++++++++++++++++
+   */
+  const [polyFrequency, setPolyFrequency] = useState(550);
+  const [polyBeatCount, setPolyBeatCount] = useState<DropdownOptions>(
+    beatCountData[2],
   );
   const [polySubdivision, setPolySubdivision] = useState<DropdownOptions>(
     subdivisionData[0],
   );
+  // emitted from polyrhythm instance
+  const [polyBeat, setPolyBeat] = useState(1);
 
-  const [frequency, setFrequency] = useState(750);
-  const [polyFrequency, setPolyFrequency] = useState(550);
-
+  /**
+   * ++++++++++
+   * App State
+   * ++++++++++
+   */
   const [usePolyrhythm, setUsePolyrhythm] = useState(false);
-
   const [selectedSetting, setSelectedSetting] = useState('metronome');
-
-  const conductor = useRef<Conductor | null>(null);
-
-  const beats = 4;
 
   useEffect(() => {
     if (!conductor.current) return;
@@ -50,35 +83,12 @@ function App() {
     }, 50);
   }, [bpm]);
 
-  // useEffect(() => {
-  //   if (!conductor.current) return;
-  //   console.log('updating sub');
-
-  //   const osc = new Oscillator(conductor.current.audioCtx, 900);
-
-  //   conductor.current.removeRhythms();
-  //   const updateRhythm = new Rhythm({
-  //     subdivision: Subdivisions[subdivision.value as keyof typeof Subdivisions],
-  //     sound: osc,
-  //     beats,
-  //     bpm,
-  //   });
-  //   conductor.current.addRhythm(updateRhythm);
-
-  //   updateRhythm.on('beatChange', (beat: number) => {
-  //     setCurrentBeat(beat);
-  //   });
-
-  //   if (isRunning) {
-  //     setIsRunning(false);
-
-  //     setTimeout(() => {
-  //       if (!conductor.current) return;
-
-  //       setIsRunning(conductor.current.start());
-  //     }, 50);
-  //   }
-  // }, [subdivision]);
+  const bpmRef = useRef(bpm);
+  const isRunningRef = useRef(isRunning);
+  useEffect(() => {
+    bpmRef.current = bpm;
+    isRunningRef.current = isRunning;
+  }, [bpm, isRunning]);
 
   useEffect(() => {
     if (!conductor.current) return;
@@ -90,7 +100,6 @@ function App() {
       subdivision: Subdivisions[subdivision.value as keyof typeof Subdivisions],
       sound: osc,
       beats: parseInt(beatCount.value),
-      bpm,
     });
 
     conductor.current.addRhythm(updateRhythm);
@@ -103,7 +112,6 @@ function App() {
           Subdivisions[polySubdivision.value as keyof typeof Subdivisions],
         sound: polyOsc,
         beats: parseInt(beatCount.value),
-        bpm,
         poly: parseInt(polyBeatCount.value),
       });
 
@@ -118,7 +126,7 @@ function App() {
       setCurrentBeat(beat);
     });
 
-    if (isRunning) {
+    if (isRunningRef.current) {
       setIsRunning(false);
 
       setTimeout(() => {
@@ -139,41 +147,26 @@ function App() {
 
   useEffect(() => {
     const audioCtx = new AudioContext();
-    const osc = new Oscillator(audioCtx, frequency);
-    // const osc2 = new Oscillator(audioCtx, 400);
+    const osc = new Oscillator(audioCtx, defaultFrequency);
 
-    const bpm = 70;
-    conductor.current = new Conductor({ audioCtx, bpm });
+    conductor.current = new Conductor({ audioCtx, bpm: defaultBpm });
 
     const rhythm1 = new Rhythm({
       subdivision: Subdivisions.base,
       sound: osc,
-      beats,
-      bpm,
+      beats: parseInt(defaultBeatCount.value),
     });
 
     rhythm1.on('beatChange', (beat: number) => {
       setCurrentBeat(beat);
     });
 
-    // const rhythm2 = new Rhythm({
-    //   subdivision: Subdivisions.base,
-    //   sound: osc2,
-    //   beats,
-    //   bpm,
-    //   poly: 3,
-    // });
-
-    // rhythm2.on('beatChange', (beat: number): void => {
-    //   setPolyBeat(beat);
-    // });
-
     conductor.current.addRhythm(rhythm1);
 
     return () => {
       conductor.current?.stop();
     };
-  }, []);
+  }, [defaultBeatCount.value]);
 
   function toggleMetronome(): void {
     if (!conductor.current) return;
@@ -206,7 +199,6 @@ function App() {
   }
 
   function updatePolyBeatCount(value: string): void {
-    console.log('updating poly');
     setPolyBeatCount(
       beatCountData.find((b) => b.value === value) || beatCountData[3],
     );
