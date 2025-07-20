@@ -1,5 +1,6 @@
 import '../css/Display.css';
 import BPMGrid from './BPM-Grid';
+import BPMSpinner from './BPM-Spinner';
 
 interface DisplayProps {
   isRunning: boolean;
@@ -9,7 +10,17 @@ interface DisplayProps {
   polyBeat: number;
   polyrhythm: number;
   usePoly: boolean;
+  updateBPM: (value: number) => void;
+  togglePlayback: () => void;
 }
+
+// function togglePlayback(): void {
+//   console.log('toggling playback');
+// }
+
+// function updateBPM(): void {
+//   console.log('updating bpm');
+// }
 
 function Display({
   isRunning,
@@ -19,6 +30,8 @@ function Display({
   polyBeat,
   polyrhythm,
   usePoly,
+  togglePlayback,
+  updateBPM,
 }: DisplayProps) {
   return (
     <div className="display_container">
@@ -28,6 +41,13 @@ function Display({
           bpm={bpm}
           beats={beats}
           currentBeat={currentBeat}
+        />
+        <BPMSpinner
+          togglePlayback={togglePlayback}
+          updateBPM={updateBPM}
+          isRunning={isRunning}
+          bpm={bpm}
+          usePolyrhythm={usePoly}
         />
         {usePoly && (
           <BPMGrid

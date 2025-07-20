@@ -5,6 +5,7 @@ import '../css/BPM-Spinner.css';
 interface BPMSpinnerProps {
   bpm: number;
   isRunning: boolean;
+  usePolyrhythm: boolean;
   updateBPM: (value: number) => void;
   togglePlayback: () => void;
 }
@@ -14,6 +15,7 @@ function BPMSpinner({
   isRunning,
   updateBPM,
   togglePlayback,
+  usePolyrhythm,
 }: BPMSpinnerProps) {
   const [rotation, setRotation] = useState(0);
   const [count, setCount] = useState(bpm);
@@ -85,12 +87,12 @@ function BPMSpinner({
       <section
         ref={bpmSpinnerRef}
         onPointerDown={onPointerDown}
-        className="bpm-spinner__rotary"
+        className={`bpm-spinner__rotary${usePolyrhythm ? ' small' : ''}`}
         style={{
           transform: `rotate(${rotation}deg)`,
         }}
       >
-        <div className="circle">
+        <div className={`circle${usePolyrhythm ? ' small' : ''}`}>
           <div>
             <div>
               <div>
@@ -133,7 +135,7 @@ function BPMSpinner({
         </div>
       </section>
       <div
-        className={`${isRunning ? 'running ' : ''}bpm-spinner__button`}
+        className={`${isRunning ? 'running ' : ''}${usePolyrhythm ? 'small ' : ''}bpm-spinner__button`}
         style={{ '--tempo': `${60 / styleCount}s` } as React.CSSProperties}
       >
         <div>

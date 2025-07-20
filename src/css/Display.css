@@ -1,19 +1,9 @@
 .display_container {
-  /* min-width: 900px; */
-  max-width: 100%;
-  overflow: hidden;
-  /* background: #101010; */
-  padding: 2rem;
   border-radius: 5px;
   margin-bottom: 1rem;
   display: flex;
   justify-content: center;
 }
-
-/* .note path {
-  fill: #d31eed !important;
-  stroke: #d31eed !important;
-} */
 
 .grid-outer-container {
   position: relative;
@@ -21,4 +11,5 @@
   justify-content: center;
   align-items: center;
   width: fit-content;
+  height: 500px;
 }

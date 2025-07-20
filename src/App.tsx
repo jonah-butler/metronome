@@ -72,6 +72,28 @@ function App() {
   const [usePolyrhythm, setUsePolyrhythm] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState('metronome');
 
+  /**
+   * ++++++++++++++++
+   * STATE & EFFECT
+   * bpm and isRunning state shouldn't retrigger
+   * additional effects, so guarding those effect
+   * retriggers with ref setting
+   *
+   */
+  const bpmRef = useRef(bpm);
+  const isRunningRef = useRef(isRunning);
+  useEffect(() => {
+    bpmRef.current = bpm;
+    isRunningRef.current = isRunning;
+  }, [bpm, isRunning]);
+
+  /**
+   * +++++++++++
+   * EFFECT
+   * updates the bpm only without affecting the current rhythm instances
+   * using a setTimeout to correctly reset the rhythm visualizer arm
+   *
+   */
   useEffect(() => {
     if (!conductor.current) return;
 
@@ -83,15 +105,25 @@ function App() {
     }, 50);
   }, [bpm]);
 
-  const bpmRef = useRef(bpm);
-  const isRunningRef = useRef(isRunning);
+  /**
+   * +++++++++++++++
+   * EFFECT:
+   * updates the current running conductor with new rhythm/polyrhythm parameters
+   * triggers updates from:
+   * > beatCount
+   * > polyBeatCount
+   * > subdivision
+   * > polySubdivision
+   * > frequency
+   * > polyFrequency
+   * > usePolyrhythm
+   *
+   */
   useEffect(() => {
-    bpmRef.current = bpm;
-    isRunningRef.current = isRunning;
-  }, [bpm, isRunning]);
-
-  useEffect(() => {
-    if (!conductor.current) return;
+    if (!conductor.current) {
+      const audioCtx = new AudioContext();
+      conductor.current = new Conductor({ audioCtx, bpm: defaultBpm });
+    }
 
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
 
@@ -144,29 +176,6 @@ function App() {
     polyFrequency,
     polySubdivision,
   ]);
-
-  useEffect(() => {
-    const audioCtx = new AudioContext();
-    const osc = new Oscillator(audioCtx, defaultFrequency);
-
-    conductor.current = new Conductor({ audioCtx, bpm: defaultBpm });
-
-    const rhythm1 = new Rhythm({
-      subdivision: Subdivisions.base,
-      sound: osc,
-      beats: parseInt(defaultBeatCount.value),
-    });
-
-    rhythm1.on('beatChange', (beat: number) => {
-      setCurrentBeat(beat);
-    });
-
-    conductor.current.addRhythm(rhythm1);
-
-    return () => {
-      conductor.current?.stop();
-    };
-  }, [defaultBeatCount.value]);
 
   function toggleMetronome(): void {
     if (!conductor.current) return;
@@ -226,27 +235,35 @@ function App() {
           polyrhythm={parseInt(polyBeatCount.value)}
           polyBeat={polyBeat}
           usePoly={usePolyrhythm}
+          togglePlayback={toggleMetronome}
+          updateBPM={setBPM}
         />
-        {/* Polyrhtyhm Toggle */}
-        <section className="polyrhythm-container">
-          <Toggle
-            label=""
-            isChecked={usePolyrhythm}
-            onChange={updateUsePolyrhythm}
-          />
-        </section>
       </section>
-      <section className="spinner-container">
+      <section className="spinner-container" style={{ display: 'none' }}>
         <BPMSpinner
           togglePlayback={toggleMetronome}
           bpm={bpm}
           isRunning={isRunning}
           updateBPM={setBPM}
+          usePolyrhythm={usePolyrhythm}
         />
       </section>
       <section className="polyrhythm-header-container">
-        <h3>{beatCount.value}</h3>
-        {usePolyrhythm && <h3>:{polyBeatCount.value}</h3>}
+        <Toggle
+          label=""
+          isChecked={usePolyrhythm}
+          onChange={updateUsePolyrhythm}
+        />
+        <div className="polyrhtyhm-beatcount-container">
+          <span>
+            <h3>{beatCount.value}</h3>
+          </span>
+          {usePolyrhythm && (
+            <span>
+              <h3>:{polyBeatCount.value}</h3>
+            </span>
+          )}
+        </div>
       </section>
       <section className="settings-toggle-row">
         <button

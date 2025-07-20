@@ -1,10 +1,10 @@
 .bpm-spinner {
   position: relative;
-  width: 100%;
+  /* width: 100%; */
   display: flex;
   justify-content: center;
   width: 500px;
-  height: 420px;
+  /* height: 420px; */
   touch-action: none;
 }
 
@@ -18,6 +18,12 @@
   user-select: none;
   background: black;
   border: 3px solid #242424;
+  /* transition: all 0.3s linear; */
+}
+
+.bpm-spinner__rotary.small {
+  width: 320px;
+  height: 320px;
 }
 
 .bpm-spinner__rotary:active {
@@ -32,7 +38,6 @@
   left: 50%;
   transform: translate(-50%, -50%);
   border: 4px solid rgba(248, 33, 173, 1);
-  /* background: rgb(63, 62, 62); */
   background: black;
   border-radius: 50%;
   display: flex;
@@ -40,8 +45,12 @@
   align-items: center;
   user-select: none;
   will-change: width, height;
-  transition: all 0.01s linear;
-  /* box-shadow: 0px 1px 0px 2px rgb(141 27 157 / 40%); */
+  /* transition: all 0.3s linear; */
+}
+
+.bpm-spinner__button.small {
+  width: 230px;
+  height: 230px;
 }
 
 .bpm-spinner__button.running {
@@ -72,6 +81,11 @@
   margin: 0;
 }
 
+.circle.small {
+  padding-bottom: 46%;
+  left: 157px;
+}
+
 .circle {
   position: absolute;
   width: 1.5%;
@@ -80,6 +94,7 @@
   top: 20px;
   left: 200px;
   height: 40%;
+  /* transition: all 0.3s linear; */
 }
 .circle div {
   position: absolute;
@@ -110,7 +125,7 @@
 .play-button__container {
   position: absolute;
   display: flex;
-  bottom: -36px;
+  bottom: -48px;
   background: black;
   border-radius: 50%;
   width: 100px;
@@ -121,6 +136,6 @@
 
 .play-button {
   border-radius: 50%;
-  width: 75px;
-  height: 75px;
+  width: 85px;
+  height: 85px;
 }

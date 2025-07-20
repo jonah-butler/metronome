@@ -1,12 +1,13 @@
 .grid-container {
   display: flex;
   justify-content: center;
-  width: 300px;
-  height: 300px;
+  width: 470px;
+  height: 470px;
   border-radius: 50%;
   border: 3px solid #242424;
   position: relative;
-  z-index: 10;
+  z-index: -1;
+  position: absolute;
 }
 
 .grid-container__clock-arm {
@@ -15,7 +16,7 @@
   background: #f821ad;
   transform-origin: bottom center;
   position: relative;
-  z-index: 6;
+  z-index: -1;
 }
 
 .grid-container__clock-arm.running {
@@ -34,16 +35,16 @@
 
 .grid-container .dot {
   position: absolute;
-  top: 45%;
-  left: 46%;
+  top: 47%;
+  left: 47%;
   width: 25px;
   height: 25px;
   background-color: #f821ad;
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(155px) rotate(calc(-360deg / var(--beats) * var(--i)));
+    translate(237px) rotate(calc(-360deg / var(--beats) * var(--i)));
   transform-origin: center;
-  z-index: 7;
+  z-index: -1;
 }
 
 .grid-container .dot.active,
@@ -58,24 +59,70 @@
 .grid-container.small {
   display: flex;
   justify-content: center;
-  width: 235px;
-  height: 235px;
+  width: 415px;
+  height: 415px;
   border-radius: 50%;
   border: 3px solid #242424;
-  z-index: 7;
+  z-index: -1;
 }
 
 .grid-container.small .dot {
   position: absolute;
-  top: 47%;
-  left: 47%;
+  top: 48%;
+  left: 48%;
   width: 15px;
   height: 15px;
   transition: all 0.1s linear;
   background-color: #f821ad;
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(120px) rotate(calc(-360deg / var(--beats) * var(--i)));
+    translate(211px) rotate(calc(-360deg / var(--beats) * var(--i)));
   transform-origin: center;
   z-index: 8;
+}
+
+@media (max-width: 563px) {
+  .grid-container {
+    width: 390px !important;
+    height: 390px !important;
+  }
+
+  .grid-container .dot {
+    transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
+      translate(200px) rotate(calc(-360deg / var(--beats) * var(--i)));
+  }
+
+  .grid-container.small {
+    width: 340px !important;
+    height: 340px !important;
+  }
+
+  .grid-container.small > .dot {
+    transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
+      translate(170px) rotate(calc(-360deg / var(--beats) * var(--i)));
+  }
+
+  .bpm-spinner {
+    width: 390px;
+  }
+
+  .bpm-spinner__rotary {
+    width: 300px !important;
+    height: 300px !important;
+  }
+
+  .bpm-spinner__button {
+    width: 210px !important;
+    height: 210px !important;
+    top: 48% !important;
+  }
+
+  .bpm-spinner__rotary > .circle {
+    padding-bottom: 46% !important;
+    left: 148px !important;
+  }
+
+  .grid-outer-container {
+    height: 425px;
+  }
 }
