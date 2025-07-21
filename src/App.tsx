@@ -101,7 +101,7 @@ function App() {
     setTimeout(() => {
       if (!conductor.current) return;
 
-      setIsRunning(conductor.current.update(bpm));
+      conductor.current.update(bpm);
     }, 50);
   }, [bpm]);
 
@@ -123,6 +123,10 @@ function App() {
     if (!conductor.current) {
       const audioCtx = new AudioContext();
       conductor.current = new Conductor({ audioCtx, bpm: defaultBpm });
+
+      conductor.current.on('isRunning', (state: boolean): void => {
+        setIsRunning(state);
+      });
     }
 
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
@@ -164,7 +168,7 @@ function App() {
       setTimeout(() => {
         if (!conductor.current) return;
 
-        setIsRunning(conductor.current.start());
+        conductor.current.start();
       }, 50);
     }
   }, [
@@ -181,11 +185,9 @@ function App() {
     if (!conductor.current) return;
 
     if (isRunning) {
-      const state = conductor.current.stop();
-      setIsRunning(state);
+      conductor.current.stop();
     } else {
-      const state = conductor.current.start();
-      setIsRunning(state);
+      conductor.current.start();
     }
   }
 

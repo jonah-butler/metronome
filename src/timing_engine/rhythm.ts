@@ -48,8 +48,10 @@ export class Rhythm extends EventEmitter {
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
 
-    const rawValue = (this.beatTrack % beatSource) + 1 * this.subdivision;
-    this.beatTrack = this.cleanFloat(rawValue);
+    const next = this.cleanFloat(this.beatTrack + this.subdivision);
+    const maxBeforeWrap = beatSource + 1 - this.subdivision;
+
+    this.beatTrack = next > maxBeforeWrap ? 1 : next;
   }
 
   private get isBeatOne(): boolean {

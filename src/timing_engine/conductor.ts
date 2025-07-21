@@ -1,3 +1,4 @@
+import { EventEmitter } from 'events';
 import { Rhythm } from './rhythm';
 
 type ConductorParams = {
@@ -18,8 +19,8 @@ export const Subdivisions = {
   decuplet: 1 / 10,
 };
 
-export class Conductor {
-  static LOOK_AHEAD = 0.2;
+export class Conductor extends EventEmitter {
+  static LOOK_AHEAD = 0.1;
 
   private isRunning = false;
   private rhythms: Rhythm[] = [];
@@ -28,6 +29,7 @@ export class Conductor {
   bpm: number;
 
   constructor({ audioCtx, bpm }: ConductorParams) {
+    super();
     this.audioCtx = audioCtx;
     this.bpm = bpm;
   }
@@ -40,7 +42,7 @@ export class Conductor {
     if (!this.isRunning) return;
 
     for (const rhythm of this.rhythms) {
-      while (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
+      if (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
         rhythm.play();
         rhythm.advance(this.bpm, this.currentTime);
       }
@@ -67,13 +69,23 @@ export class Conductor {
   }
 
   start(): boolean {
-    const currentTime = this.currentTime;
+    const firstNoteTime = this.currentTime;
     for (const rhythm of this.rhythms) {
-      rhythm.init(currentTime);
+      rhythm.init(this.currentTime);
+
+      rhythm.play();
+      rhythm.advance(this.bpm, this.currentTime);
     }
 
     this.isRunning = true;
     this.schedule();
+
+    setTimeout(
+      () => {
+        this.emit('isRunning', this.isRunning);
+      },
+      (this.currentTime - firstNoteTime) * 1000,
+    );
     return this.isRunning;
   }
 
@@ -83,6 +95,7 @@ export class Conductor {
       rhythm.kill();
     }
 
+    this.emit('isRunning', this.isRunning);
     return this.isRunning;
   }
 
