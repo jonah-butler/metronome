@@ -12,4 +12,5 @@
   align-items: center;
   width: fit-content;
   height: 500px;
+  z-index: 10;
 }
