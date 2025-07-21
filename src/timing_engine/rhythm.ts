@@ -10,6 +10,7 @@ type RhythmParams = {
 
 export class Rhythm extends EventEmitter {
   private killed = true;
+  private step: number = 0;
   private activeOscillators: OscillatorNode[] = [];
 
   poly: number;
@@ -48,10 +49,13 @@ export class Rhythm extends EventEmitter {
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
 
-    const next = this.cleanFloat(this.beatTrack + this.subdivision);
-    const maxBeforeWrap = beatSource + 1 - this.subdivision;
+    // Total steps in a full cycle
+    const totalSteps = Math.round(beatSource / this.subdivision);
 
-    this.beatTrack = next > maxBeforeWrap ? 1 : next;
+    this.step = (this.step + 1) % totalSteps;
+
+    this.beatTrack = this.cleanFloat(this.step * this.subdivision + 1);
+    console.log('beat track:', this.beatTrack);
   }
 
   private get isBeatOne(): boolean {
@@ -61,6 +65,8 @@ export class Rhythm extends EventEmitter {
   init(currentTime: number): void {
     this.nextNote = currentTime;
     this.killed = false;
+    this.step = 0;
+    this.beatTrack = 1;
   }
 
   advance(targetBpm: number, currentTime: number): void {
@@ -100,6 +106,7 @@ export class Rhythm extends EventEmitter {
     }
 
     this.beatTrack = 1;
+    this.step = 0;
     this.emit('beatChange', 1);
     this.activeOscillators = [];
   }
