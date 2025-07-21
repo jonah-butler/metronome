@@ -55,7 +55,6 @@ export class Rhythm extends EventEmitter {
     this.step = (this.step + 1) % totalSteps;
 
     this.beatTrack = this.cleanFloat(this.step * this.subdivision + 1);
-    console.log('beat track:', this.beatTrack);
   }
 
   private get isBeatOne(): boolean {
@@ -80,7 +79,6 @@ export class Rhythm extends EventEmitter {
 
   play(): void {
     const tempBeat = this.beatTrack;
-
     const osc = this.sound.play(
       this.nextNote,
       this.isBeatOne,

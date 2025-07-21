@@ -84,7 +84,7 @@ export class Conductor extends EventEmitter {
       () => {
         this.emit('isRunning', this.isRunning);
       },
-      (this.currentTime - firstNoteTime) * 1000,
+      (this.currentTime - firstNoteTime + Conductor.LOOK_AHEAD) * 1000,
     );
     return this.isRunning;
   }
