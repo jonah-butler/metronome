@@ -79,6 +79,7 @@ export class Rhythm extends EventEmitter {
 
   play(): void {
     const tempBeat = this.beatTrack;
+
     const osc = this.sound.play(
       this.nextNote,
       this.isBeatOne,
