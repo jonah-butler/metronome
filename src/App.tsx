@@ -168,7 +168,8 @@ function App() {
       setTimeout(() => {
         if (!conductor.current) return;
 
-        conductor.current.start();
+        // set is running to keep current isRunning state up to date
+        setIsRunning(conductor.current.start());
       }, 50);
     }
   }, [

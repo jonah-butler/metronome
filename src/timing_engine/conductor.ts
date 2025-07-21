@@ -69,12 +69,11 @@ export class Conductor extends EventEmitter {
   }
 
   start(): boolean {
-    const firstNoteTime = this.currentTime;
     for (const rhythm of this.rhythms) {
       rhythm.init(this.currentTime);
 
-      rhythm.play();
-      rhythm.advance(this.bpm, this.currentTime);
+      // rhythm.play();
+      // rhythm.advance(this.bpm, this.currentTime);
     }
 
     this.isRunning = true;
@@ -84,7 +83,7 @@ export class Conductor extends EventEmitter {
       () => {
         this.emit('isRunning', this.isRunning);
       },
-      (this.currentTime - firstNoteTime + Conductor.LOOK_AHEAD) * 1000,
+      (this.currentTime - this.currentTime + Conductor.LOOK_AHEAD) * 1000,
     );
     return this.isRunning;
   }
