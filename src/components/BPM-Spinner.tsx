@@ -1,4 +1,9 @@
-import { useRef, useState, type PointerEvent as PE } from 'react';
+import {
+  useRef,
+  useState,
+  type MouseEvent,
+  type PointerEvent as PE,
+} from 'react';
 import PowerButton from '../assets/power-button.svg?react';
 import '../css/BPM-Spinner.css';
 
@@ -76,12 +81,51 @@ function BPMSpinner({
       window.removeEventListener('pointerup', handleUp);
       updateBPM(countRef.current);
       setStyleCount(countRef.current);
+
+      lastTap.current = 0;
+      intervals.current = [];
     };
 
     window.addEventListener('pointermove', handleMove);
     window.addEventListener('pointerup', handleUp);
   }
 
+  const lastTap = useRef(0);
+  const intervals = useRef<number[]>([]);
+
+  function tapTempo(e: MouseEvent<HTMLDivElement>): void {
+    e.preventDefault();
+
+    const now = performance.now();
+
+    if (lastTap.current && now - lastTap.current > 4000) {
+      intervals.current = [];
+    }
+
+    if (lastTap.current !== 0) {
+      const interval = now - lastTap.current;
+      intervals.current.push(interval);
+
+      if (intervals.current.length > 5) {
+        intervals.current.shift();
+      }
+
+      const sorted = [...intervals.current].sort((a, b) => a - b);
+      const mid = Math.floor(sorted.length / 2);
+      const median =
+        sorted.length % 2 === 0
+          ? (sorted[mid - 1] + sorted[mid]) / 2
+          : sorted[mid];
+
+      const bpm = Math.min(Math.round(60 / (median / 1000)), 250);
+
+      countRef.current = bpm;
+      setCount(bpm);
+      updateBPM(bpm);
+    }
+
+    lastTap.current = now;
+  }
   return (
     <div className="bpm-spinner">
       <section
@@ -135,19 +179,21 @@ function BPMSpinner({
         </div>
       </section>
       <div
+        onClick={tapTempo}
         className={`${isRunning ? 'running ' : ''}${usePolyrhythm ? 'small ' : ''}bpm-spinner__button`}
         style={{ '--tempo': `${60 / styleCount}s` } as React.CSSProperties}
       >
-        <div>
+        <span className="tap-indicator">tap</span>
+        <div className="display-container">
           <h4>{count}</h4>
           <h5>BPM</h5>
         </div>
+      </div>
 
-        <div className="play-button__container">
-          <button onClick={togglePlayback} className="play-button">
-            <PowerButton />
-          </button>
-        </div>
+      <div className="play-button__container">
+        <button onClick={togglePlayback} className="play-button">
+          <PowerButton />
+        </button>
       </div>
     </div>
   );

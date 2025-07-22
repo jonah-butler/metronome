@@ -127,6 +127,11 @@
     font-size: 13px;
   }
 
+  .display-container {
+    position: relative;
+    top: -9px;
+  }
+
   .play-button {
     width: 65px;
     height: 65px;

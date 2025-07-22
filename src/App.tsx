@@ -223,6 +223,25 @@ function App() {
     }
   }
 
+  function isMobileUserAgent() {
+    const userAgent = navigator.userAgent;
+    return /android|ipad|iphone|ipod|blackberry|webos|iemobile|mobile/i.test(
+      userAgent,
+    );
+  }
+
+  async function toggleFullscreen(): Promise<void> {
+    if (!document.fullscreenElement) {
+      try {
+        document.documentElement.requestFullscreen();
+      } catch (err) {
+        console.log(err);
+      }
+    } else {
+      document.exitFullscreen();
+    }
+  }
+
   return (
     <>
       <section>
@@ -354,6 +373,14 @@ function App() {
             />
           </section>
         </div>
+      )}
+
+      {!isMobileUserAgent && (
+        <section className="settings-row">
+          <div>
+            <button onClick={toggleFullscreen}>fullscreen</button>
+          </div>
+        </section>
       )}
     </>
   );

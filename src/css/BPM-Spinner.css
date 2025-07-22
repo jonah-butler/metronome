@@ -19,7 +19,6 @@
   user-select: none;
   background: black;
   border: 3px solid #242424;
-  /* transition: all 0.3s linear; */
 }
 
 .bpm-spinner__rotary.small {
@@ -46,7 +45,20 @@
   align-items: center;
   user-select: none;
   will-change: width, height;
-  /* transition: all 0.3s linear; */
+  flex-direction: column;
+  transition: background-color 0.3s linear;
+  cursor: pointer;
+}
+
+.bpm-spinner__button:active {
+  background-color: rgba(248, 33, 173, 1);
+}
+
+.tap-indicator {
+  position: absolute;
+  top: 5px;
+  font-size: 12px;
+  font-weight: 600;
 }
 
 .bpm-spinner__button.small {
@@ -126,7 +138,7 @@
 .play-button__container {
   position: absolute;
   display: flex;
-  bottom: -48px;
+  bottom: 10px;
   background: black;
   border-radius: 50%;
   width: 100px;

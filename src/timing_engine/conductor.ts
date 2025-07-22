@@ -72,8 +72,8 @@ export class Conductor extends EventEmitter {
     for (const rhythm of this.rhythms) {
       rhythm.init(this.currentTime);
 
-      // rhythm.play();
-      // rhythm.advance(this.bpm, this.currentTime);
+      rhythm.play();
+      rhythm.advance(this.bpm, this.currentTime);
     }
 
     this.isRunning = true;
