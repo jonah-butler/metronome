@@ -49,7 +49,6 @@ export class Rhythm extends EventEmitter {
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
 
-    // Total steps in a full cycle
     const totalSteps = Math.round(beatSource / this.subdivision);
 
     this.step = (this.step + 1) % totalSteps;

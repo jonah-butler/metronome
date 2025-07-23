@@ -259,6 +259,12 @@ function App() {
           usePoly={usePolyrhythm}
           togglePlayback={toggleMetronome}
           updateBPM={setBPM}
+          subdivision={
+            Subdivisions[subdivision.value as keyof typeof Subdivisions]
+          }
+          polySubdivision={
+            Subdivisions[polySubdivision.value as keyof typeof Subdivisions]
+          }
         />
       </section>
       <section className="spinner-container" style={{ display: 'none' }}>

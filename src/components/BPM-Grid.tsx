@@ -7,6 +7,7 @@ interface BPMGridProps {
   beats: number;
   currentBeat: number;
   smallVersion?: boolean;
+  subdivision: number;
 }
 
 function BPMGrid({
@@ -15,6 +16,7 @@ function BPMGrid({
   beats,
   currentBeat,
   smallVersion,
+  subdivision,
 }: BPMGridProps) {
   useEffect(() => {
     if (!clockArm.current) return;
@@ -24,12 +26,20 @@ function BPMGrid({
     }
   }, [isRunning]);
 
+  function isSubdividedNote(beat: number): boolean {
+    return !Number.isInteger(beat);
+  }
+
+  function isSameBeat(i: number): boolean {
+    return 1 + i * subdivision === currentBeat;
+  }
+
   const clockArm = useRef<HTMLDivElement | null>(null);
 
   return (
     <div
       className={`grid-container ${smallVersion ? 'small' : ''}`}
-      style={{ '--beats': beats } as React.CSSProperties}
+      style={{ '--beats': beats / subdivision } as React.CSSProperties}
     >
       {!smallVersion && (
         <section
@@ -38,10 +48,10 @@ function BPMGrid({
           style={{ '--tempo': `${(60 / bpm) * beats}s` } as React.CSSProperties}
         ></section>
       )}
-      {Array.from(Array(beats), (_x, i) => {
+      {Array.from(Array(beats / subdivision), (_x, i) => {
         return (
           <div
-            className={`dot${i + 1 === Math.floor(currentBeat) ? ' active' : ''}`}
+            className={`dot${isSameBeat(i) ? ' active' : ''} ${isSubdividedNote((beats / (beats / subdivision)) * i) ? 'subdivision' : ''}`}
             key={i}
             style={{ '--i': i } as React.CSSProperties}
           ></div>

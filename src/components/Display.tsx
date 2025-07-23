@@ -10,17 +10,11 @@ interface DisplayProps {
   polyBeat: number;
   polyrhythm: number;
   usePoly: boolean;
+  subdivision: number;
+  polySubdivision: number;
   updateBPM: (value: number) => void;
   togglePlayback: () => void;
 }
-
-// function togglePlayback(): void {
-//   console.log('toggling playback');
-// }
-
-// function updateBPM(): void {
-//   console.log('updating bpm');
-// }
 
 function Display({
   isRunning,
@@ -32,6 +26,8 @@ function Display({
   usePoly,
   togglePlayback,
   updateBPM,
+  subdivision,
+  polySubdivision,
 }: DisplayProps) {
   return (
     <div className="display_container">
@@ -41,6 +37,7 @@ function Display({
           bpm={bpm}
           beats={beats}
           currentBeat={currentBeat}
+          subdivision={subdivision}
         />
         <BPMSpinner
           togglePlayback={togglePlayback}
@@ -56,6 +53,7 @@ function Display({
             beats={polyrhythm}
             currentBeat={polyBeat}
             smallVersion={true}
+            subdivision={polySubdivision}
           />
         )}
       </section>
