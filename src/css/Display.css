@@ -1,0 +1,16 @@
+.display_container {
+  border-radius: 5px;
+  margin-bottom: 1rem;
+  display: flex;
+  justify-content: center;
+}
+
+.grid-outer-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: fit-content;
+  height: 500px;
+  z-index: 10;
+}

@@ -1,0 +1,22 @@
+.range-container {
+  text-align: left;
+  font-weight: 600;
+}
+
+.range {
+  min-height: 33px;
+  background: rgba(36, 36, 36, 0.5);
+  padding: 0.3rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+input[type='range'] {
+  width: 100%;
+  cursor: pointer;
+  outline: none;
+  border: none;
+  accent-color: #f821ad;
+}
