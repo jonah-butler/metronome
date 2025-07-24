@@ -22,7 +22,7 @@ git stash pop
 cp -a ./dist/. ./
 
 # delete dist dir
-rm dist
+git rm -rf dist
 
 # add and commit
 git add .

@@ -11,7 +11,6 @@ import { Oscillator } from './timing_engine/oscillator';
 import { Rhythm } from './timing_engine/rhythm';
 
 function App() {
-  console.log('yeah');
   /**
    * +++++++++++++++++++
    * Metronome Defaults
