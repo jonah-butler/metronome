@@ -381,7 +381,7 @@ function App() {
         </div>
       )}
 
-      {!isMobileUserAgent && (
+      {!isMobileUserAgent() && (
         <section className="settings-row">
           <div>
             <button onClick={toggleFullscreen}>fullscreen</button>
