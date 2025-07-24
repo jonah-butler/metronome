@@ -11,11 +11,18 @@ git stash save
 git checkout gh-pages
 
 # delete old files
-git rm -rf .
+git rm favicon.svg
+git rm index.html
+git rm -rf assets
+
+# retrieve dist from stash
 git stash pop
  
 #  copy build dir contents into top level
 cp -a ./dist/. ./
+
+# delete dist dir
+rm dist
 
 # add and commit
 git add .
