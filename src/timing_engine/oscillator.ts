@@ -1,10 +1,4 @@
-export interface NotePlayer {
-  play(
-    startTime: number,
-    isFirstNote: boolean,
-    isSubdividedNote: boolean,
-  ): OscillatorNode;
-}
+import { type NotePlayer } from './oscillator.types';
 
 export class Oscillator implements NotePlayer {
   audioCtx: AudioContext;

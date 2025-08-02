@@ -40,6 +40,7 @@
   width: 25px;
   height: 25px;
   background-color: #f821ad;
+  transition: all 0.1s linear;
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
     translate(237px) rotate(calc(-360deg / var(--beats) * var(--i)));

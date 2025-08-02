@@ -1,12 +1,6 @@
 import { EventEmitter } from 'events';
-import { type NotePlayer } from './oscillator';
-
-type RhythmParams = {
-  beats: number;
-  subdivision: number;
-  sound: NotePlayer;
-  poly?: number;
-};
+import { type NotePlayer } from './oscillator.types';
+import { type RhythmParams } from './rhythm.types';
 
 export class Rhythm extends EventEmitter {
   private killed = true;

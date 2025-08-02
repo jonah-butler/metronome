@@ -6,9 +6,11 @@ import Dropdown, { type DropdownOptions } from './components/Dropdown';
 import Slider from './components/Slider';
 import Toggle from './components/Toggle';
 import { beatCountData, subdivisionData } from './data';
-import { Conductor, Subdivisions } from './timing_engine/conductor';
+import { releaseWakeLock, requestWakeLock } from './services/wakelock';
+import { Conductor } from './timing_engine/conductor';
 import { Oscillator } from './timing_engine/oscillator';
 import { Rhythm } from './timing_engine/rhythm';
+import { Subdivisions } from './timing_engine/types';
 
 function App() {
   /**
@@ -187,8 +189,10 @@ function App() {
 
     if (isRunning) {
       conductor.current.stop();
+      releaseWakeLock();
     } else {
       conductor.current.start();
+      requestWakeLock();
     }
   }
 
@@ -241,6 +245,17 @@ function App() {
       document.exitFullscreen();
     }
   }
+
+  document.addEventListener('visibilitychange', () => {
+    console.log('visibility change');
+    if (document.visibilityState !== 'visible') {
+      console.log('not visible');
+      if (conductor.current) {
+        conductor.current.stop();
+      }
+      releaseWakeLock();
+    }
+  });
 
   return (
     <>
