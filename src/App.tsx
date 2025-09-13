@@ -10,6 +10,7 @@ import { releaseWakeLock, requestWakeLock } from './services/wakelock';
 import { Conductor } from './timing_engine/conductor';
 import { Oscillator } from './timing_engine/oscillator';
 import { Rhythm } from './timing_engine/rhythm';
+import { type BeatState } from './timing_engine/rhythm.types';
 import { Subdivisions } from './timing_engine/types';
 
 function App() {
@@ -50,6 +51,11 @@ function App() {
   );
   // emitted from rhythm instance
   const [currentBeat, setCurrentBeat] = useState(1);
+  const defaultBeats = new Array(
+    parseInt(beatCount.value) /
+      Subdivisions[subdivision.value as keyof typeof Subdivisions],
+  ).fill(1);
+  const [totalBeats, setTotalBeats] = useState<BeatState[]>(defaultBeats);
 
   /**
    * +++++++++++++++++
@@ -65,7 +71,12 @@ function App() {
   );
   // emitted from polyrhythm instance
   const [polyBeat, setPolyBeat] = useState(1);
-
+  const defaultPolyBeats = new Array(
+    parseInt(polyBeatCount.value) /
+      Subdivisions[polySubdivision.value as keyof typeof Subdivisions],
+  ).fill(1);
+  const [totalPolyBeats, setTotalPolyBeats] =
+    useState<BeatState[]>(defaultPolyBeats);
   /**
    * ++++++++++
    * App State
@@ -138,11 +149,13 @@ function App() {
       subdivision: Subdivisions[subdivision.value as keyof typeof Subdivisions],
       sound: osc,
       beats: parseInt(beatCount.value),
+      state: totalBeats,
     });
 
     conductor.current.addRhythm(updateRhythm);
 
     if (usePolyrhythm) {
+      console.log('updating poly rhythm: ', totalPolyBeats);
       const polyOsc = new Oscillator(conductor.current.audioCtx, polyFrequency);
 
       const polyRhythm = new Rhythm({
@@ -151,6 +164,7 @@ function App() {
         sound: polyOsc,
         beats: parseInt(beatCount.value),
         poly: parseInt(polyBeatCount.value),
+        state: totalPolyBeats,
       });
 
       polyRhythm.on('beatChange', (beat: number): void => {
@@ -182,6 +196,8 @@ function App() {
     polyBeatCount,
     polyFrequency,
     polySubdivision,
+    totalBeats,
+    totalPolyBeats,
   ]);
 
   function toggleMetronome(): void {
@@ -197,27 +213,59 @@ function App() {
   }
 
   function updateSubdivision(value: string): void {
-    setSubdivision(
-      subdivisionData.find((s) => s.value === value) || subdivisionData[0],
-    );
+    const newSubdivision =
+      subdivisionData.find((s) => s.value === value) || subdivisionData[0];
+
+    // might have timing issue here...
+    setSubdivision(newSubdivision);
+
+    const newTotalBeats = new Array(
+      parseInt(beatCount.value) /
+        Subdivisions[newSubdivision.value as keyof typeof Subdivisions],
+    ).fill(1);
+
+    setTotalBeats(newTotalBeats);
   }
 
   function updatePolySubdivision(value: string): void {
-    setPolySubdivision(
-      subdivisionData.find((s) => s.value === value) || subdivisionData[0],
-    );
+    const newSubdivision =
+      subdivisionData.find((s) => s.value === value) || subdivisionData[0];
+    setPolySubdivision(newSubdivision);
+
+    const newTotalBeats = new Array(
+      parseInt(polyBeatCount.value) /
+        Subdivisions[newSubdivision.value as keyof typeof Subdivisions],
+    ).fill(1);
+
+    setTotalPolyBeats(newTotalBeats);
   }
 
   function updateBeatCount(value: string): void {
     setBeatCount(
       beatCountData.find((b) => b.value === value) || beatCountData[3],
     );
+
+    const newTotalBeats = new Array(
+      parseInt(value) /
+        Subdivisions[subdivision.value as keyof typeof Subdivisions],
+    ).fill(1);
+
+    setTotalBeats(newTotalBeats);
   }
 
   function updatePolyBeatCount(value: string): void {
     setPolyBeatCount(
       beatCountData.find((b) => b.value === value) || beatCountData[3],
     );
+
+    const newTotalBeats = new Array(
+      parseInt(value) /
+        Subdivisions[subdivision.value as keyof typeof Subdivisions],
+    ).fill(1);
+
+    console.log('new total poly beats: ', newTotalBeats);
+
+    setTotalPolyBeats(newTotalBeats);
   }
 
   function updateUsePolyrhythm(usePoly: boolean): void {
@@ -246,10 +294,19 @@ function App() {
     }
   }
 
+  const handleBeatClick = (i: number): void => {
+    totalBeats[i] = Math.abs(totalBeats[i] - 1) as BeatState;
+    console.log(totalBeats);
+  };
+
+  const handlePolyBeatClick = (i: number): void => {
+    totalPolyBeats[i] = Math.abs(totalPolyBeats[i] - 1) as BeatState;
+    console.log('total poly beats: ', totalPolyBeats);
+  };
+
+  // move to hook
   document.addEventListener('visibilitychange', () => {
-    console.log('visibility change');
     if (document.visibilityState !== 'visible') {
-      console.log('not visible');
       if (conductor.current) {
         conductor.current.stop();
       }
@@ -280,6 +337,8 @@ function App() {
           polySubdivision={
             Subdivisions[polySubdivision.value as keyof typeof Subdivisions]
           }
+          handleBeatClick={handleBeatClick}
+          handlePolyBeatClick={handlePolyBeatClick}
         />
       </section>
       <section className="spinner-container" style={{ display: 'none' }}>

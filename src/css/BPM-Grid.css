@@ -8,6 +8,7 @@
   position: relative;
   z-index: 5;
   position: absolute;
+  pointer-events: none;
 }
 
 .grid-container__clock-arm {
@@ -46,6 +47,14 @@
     translate(237px) rotate(calc(-360deg / var(--beats) * var(--i)));
   transform-origin: center;
   z-index: 6;
+  pointer-events: auto;
+}
+
+.grid-container .dot.active:hover,
+.dot:hover,
+.grid-container.small > .dot.active:hover {
+  background-color: #393439ff !important;
+  cursor: pointer;
 }
 
 .grid-container .dot.subdivision {
@@ -74,7 +83,7 @@
   height: 415px;
   border-radius: 50%;
   border: 3px solid #242424;
-  z-index: 3;
+  z-index: 5;
 }
 
 .grid-container.small .dot {
@@ -144,7 +153,7 @@
   }
 
   .bpm-spinner {
-    width: 320px;
+    /* width: 320px; */
   }
 
   .bpm-spinner__rotary {

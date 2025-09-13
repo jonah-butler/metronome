@@ -8,6 +8,7 @@ interface BPMGridProps {
   currentBeat: number;
   smallVersion?: boolean;
   subdivision: number;
+  handleBeatClick: (index: number) => void;
 }
 
 function BPMGrid({
@@ -17,6 +18,7 @@ function BPMGrid({
   currentBeat,
   smallVersion,
   subdivision,
+  handleBeatClick,
 }: BPMGridProps) {
   useEffect(() => {
     if (!clockArm.current) return;
@@ -54,6 +56,7 @@ function BPMGrid({
             className={`dot${isSameBeat(i) ? ' active' : ''} ${isSubdividedNote((beats / (beats / subdivision)) * i) ? 'subdivision' : ''}`}
             key={i}
             style={{ '--i': i } as React.CSSProperties}
+            onClick={() => handleBeatClick(i)}
           ></div>
         );
       })}

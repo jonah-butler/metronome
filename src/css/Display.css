@@ -1,6 +1,5 @@
 .display_container {
   border-radius: 5px;
-  margin-bottom: 1rem;
   display: flex;
   justify-content: center;
 }

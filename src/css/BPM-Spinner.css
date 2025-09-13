@@ -3,10 +3,10 @@
   /* width: 100%; */
   display: flex;
   justify-content: center;
-  width: 500px;
+  width: fit-content;
   /* height: 420px; */
   touch-action: none;
-  z-index: 10;
+  z-index: 5;
 }
 
 .bpm-spinner__rotary {

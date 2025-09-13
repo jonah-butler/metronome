@@ -1,6 +1,6 @@
 import { EventEmitter } from 'events';
 import { type NotePlayer } from './oscillator.types';
-import { type RhythmParams } from './rhythm.types';
+import { type BeatState, type RhythmParams } from './rhythm.types';
 
 export class Rhythm extends EventEmitter {
   private killed = true;
@@ -13,19 +13,25 @@ export class Rhythm extends EventEmitter {
   nextNote = 0;
   beatTrack: number;
   subdivision: number;
+  state: BeatState[];
 
-  constructor({ beats, subdivision, sound, poly }: RhythmParams) {
+  constructor({ beats, subdivision, sound, poly, state }: RhythmParams) {
     super();
     this.beats = beats;
     this.subdivision = subdivision;
     this.sound = sound;
     this.poly = poly ?? beats;
     this.beatTrack = 1;
+    this.state = state;
   }
 
   private spb(bpm: number): number {
     return (this.beats * (60 / bpm)) / this.poly;
   }
+
+  // private totalBeats(): number {
+  //   return this.beats / this.subdivision;
+  // }
 
   private cleanFloat(value: number, threshold = 1e-12): number {
     const rounded = Math.round(value);
@@ -54,6 +60,10 @@ export class Rhythm extends EventEmitter {
     return this.beatTrack === 1;
   }
 
+  private get currentBeat(): number {
+    return Math.round((this.beatTrack - 1) / this.subdivision) + 1;
+  }
+
   init(currentTime: number): void {
     this.nextNote = currentTime;
     this.killed = false;
@@ -73,21 +83,27 @@ export class Rhythm extends EventEmitter {
   play(): void {
     const tempBeat = this.beatTrack;
 
-    const osc = this.sound.play(
-      this.nextNote,
-      this.isBeatOne,
-      this.isSubdividedNote,
-    );
+    if (this.state[this.currentBeat - 1]) {
+      const osc = this.sound.play(
+        this.nextNote,
+        this.isBeatOne,
+        this.isSubdividedNote,
+      );
 
-    this.activeOscillators.push(osc);
+      this.activeOscillators.push(osc);
 
-    osc.onended = (): void => {
-      if (!this.killed) {
-        this.emit('beatChange', tempBeat);
-      }
+      osc.onended = (): void => {
+        if (!this.killed) {
+          this.emit('beatChange', tempBeat);
+        }
 
-      this.activeOscillators = this.activeOscillators.filter((o) => o !== osc);
-    };
+        this.activeOscillators = this.activeOscillators.filter(
+          (o) => o !== osc,
+        );
+      };
+    } else {
+      this.emit('beatChange', tempBeat);
+    }
   }
 
   kill(): void {
