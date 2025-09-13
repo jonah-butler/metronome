@@ -50,10 +50,10 @@
   pointer-events: auto;
 }
 
-.grid-container .dot:active {
+/* .grid-container .dot:active {
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
     translate(237px) rotate(calc(-360deg / var(--beats) * var(--i))) scale(0.8); /* <-- added at the end */
-}
+} */
 
 .grid-container .dot.active:hover,
 .dot:hover,
@@ -116,10 +116,10 @@
     translate(209px) rotate(calc(-360deg / var(--beats) * var(--i)));
 }
 
-.grid-container.small .dot:active {
+/* .grid-container.small .dot:active {
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
     translate(209px) rotate(calc(-360deg / var(--beats) * var(--i))) scale(0.8);
-}
+} */
 
 @media (max-width: 563px) {
   .grid-container {
