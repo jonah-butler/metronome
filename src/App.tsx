@@ -56,6 +56,7 @@ function App() {
       Subdivisions[subdivision.value as keyof typeof Subdivisions],
   ).fill(1);
   const [totalBeats, setTotalBeats] = useState<BeatState[]>(defaultBeats);
+  const totalBeatsRef = useRef<BeatState[]>(defaultBeats);
 
   /**
    * +++++++++++++++++
@@ -77,6 +78,7 @@ function App() {
   ).fill(1);
   const [totalPolyBeats, setTotalPolyBeats] =
     useState<BeatState[]>(defaultPolyBeats);
+  const totalPolyBeatsRef = useRef<BeatState[]>(defaultPolyBeats);
   /**
    * ++++++++++
    * App State
@@ -145,17 +147,18 @@ function App() {
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
 
     conductor.current.removeRhythms();
+
     const updateRhythm = new Rhythm({
       subdivision: Subdivisions[subdivision.value as keyof typeof Subdivisions],
       sound: osc,
       beats: parseInt(beatCount.value),
-      state: totalBeats,
+      // state: defaultBeats, // non-reactive
+      state: totalBeatsRef.current,
     });
 
     conductor.current.addRhythm(updateRhythm);
 
     if (usePolyrhythm) {
-      console.log('updating poly rhythm: ', totalPolyBeats);
       const polyOsc = new Oscillator(conductor.current.audioCtx, polyFrequency);
 
       const polyRhythm = new Rhythm({
@@ -164,7 +167,8 @@ function App() {
         sound: polyOsc,
         beats: parseInt(beatCount.value),
         poly: parseInt(polyBeatCount.value),
-        state: totalPolyBeats,
+        // state: defaultPolyBeats, // non-reactive
+        state: totalPolyBeatsRef.current,
       });
 
       polyRhythm.on('beatChange', (beat: number): void => {
@@ -196,8 +200,10 @@ function App() {
     polyBeatCount,
     polyFrequency,
     polySubdivision,
-    totalBeats,
-    totalPolyBeats,
+    // defaultBeats,
+    // defaultPolyBeats,
+    // totalBeats,
+    // totalPolyBeats,
   ]);
 
   function toggleMetronome(): void {
@@ -216,56 +222,75 @@ function App() {
     const newSubdivision =
       subdivisionData.find((s) => s.value === value) || subdivisionData[0];
 
-    // might have timing issue here...
-    setSubdivision(newSubdivision);
-
     const newTotalBeats = new Array(
       parseInt(beatCount.value) /
         Subdivisions[newSubdivision.value as keyof typeof Subdivisions],
     ).fill(1);
 
-    setTotalBeats(newTotalBeats);
+    if (conductor.current) {
+      const rhythm = conductor.current.getRhythm(0);
+      rhythm.resetState(newTotalBeats); // updates rhythm state
+    }
+
+    totalBeatsRef.current = newTotalBeats; // used in useEffect
+    setTotalBeats(newTotalBeats); // updates UI
+    setSubdivision(newSubdivision);
   }
 
   function updatePolySubdivision(value: string): void {
     const newSubdivision =
       subdivisionData.find((s) => s.value === value) || subdivisionData[0];
-    setPolySubdivision(newSubdivision);
 
     const newTotalBeats = new Array(
       parseInt(polyBeatCount.value) /
         Subdivisions[newSubdivision.value as keyof typeof Subdivisions],
     ).fill(1);
 
-    setTotalPolyBeats(newTotalBeats);
+    if (conductor.current) {
+      const rhythm = conductor.current.getRhythm(1);
+      rhythm.resetState(newTotalBeats); // updates rhythm state
+    }
+
+    totalPolyBeatsRef.current = newTotalBeats; // used in useEffect
+    setTotalPolyBeats(newTotalBeats); // updates UI
+    setPolySubdivision(newSubdivision);
   }
 
   function updateBeatCount(value: string): void {
+    const newTotalBeats = new Array(
+      parseInt(value) /
+        Subdivisions[subdivision.value as keyof typeof Subdivisions],
+    ).fill(1);
+
+    if (conductor.current) {
+      const rhythm = conductor.current.getRhythm(0);
+      rhythm.resetState(newTotalBeats);
+    }
+
+    totalBeatsRef.current = newTotalBeats;
+    setTotalBeats(newTotalBeats);
     setBeatCount(
       beatCountData.find((b) => b.value === value) || beatCountData[3],
     );
-
-    const newTotalBeats = new Array(
-      parseInt(value) /
-        Subdivisions[subdivision.value as keyof typeof Subdivisions],
-    ).fill(1);
-
-    setTotalBeats(newTotalBeats);
   }
 
   function updatePolyBeatCount(value: string): void {
-    setPolyBeatCount(
-      beatCountData.find((b) => b.value === value) || beatCountData[3],
-    );
-
     const newTotalBeats = new Array(
       parseInt(value) /
         Subdivisions[subdivision.value as keyof typeof Subdivisions],
     ).fill(1);
 
-    console.log('new total poly beats: ', newTotalBeats);
+    if (conductor.current) {
+      const rhythm = conductor.current.getRhythm(1);
+      rhythm.resetState(newTotalBeats);
+    }
 
+    totalPolyBeatsRef.current = newTotalBeats;
+    console.log(totalPolyBeatsRef.current);
     setTotalPolyBeats(newTotalBeats);
+    setPolyBeatCount(
+      beatCountData.find((b) => b.value === value) || beatCountData[3],
+    );
   }
 
   function updateUsePolyrhythm(usePoly: boolean): void {
@@ -282,6 +307,11 @@ function App() {
     );
   }
 
+  /**
+   * +++++++++++
+   * Fullscreen
+   * +++++++++++
+   */
   async function toggleFullscreen(): Promise<void> {
     if (!document.fullscreenElement) {
       try {
@@ -294,14 +324,38 @@ function App() {
     }
   }
 
+  /**
+   * ++++++++++++++++++++
+   * Beat Sequencer Click
+   * ++++++++++++++++++++
+   */
   const handleBeatClick = (i: number): void => {
-    totalBeats[i] = Math.abs(totalBeats[i] - 1) as BeatState;
-    console.log(totalBeats);
+    const state = Math.abs(totalBeats[i] - 1) as BeatState;
+    setTotalBeats((prev) => {
+      return prev.map((value, index) => (index === i ? state : value));
+    });
+
+    if (conductor.current) {
+      const rhythm = conductor.current.getRhythm(0);
+      rhythm.updateState(i, state);
+    }
   };
 
+  /**
+   * ++++++++++++++++++++++++++
+   * Poly Beat Sequencer Click
+   * ++++++++++++++++++++++++++
+   */
   const handlePolyBeatClick = (i: number): void => {
-    totalPolyBeats[i] = Math.abs(totalPolyBeats[i] - 1) as BeatState;
-    console.log('total poly beats: ', totalPolyBeats);
+    const state = Math.abs(totalPolyBeats[i] - 1) as BeatState;
+    setTotalPolyBeats((prev) => {
+      return prev.map((value, index) => (index === i ? state : value));
+    });
+
+    if (conductor.current) {
+      const rhythm = conductor.current.getRhythm(1);
+      rhythm.updateState(i, state);
+    }
   };
 
   // move to hook
@@ -339,6 +393,8 @@ function App() {
           }
           handleBeatClick={handleBeatClick}
           handlePolyBeatClick={handlePolyBeatClick}
+          totalBeats={totalBeats}
+          totalPolyBeats={totalPolyBeats}
         />
       </section>
       <section className="spinner-container" style={{ display: 'none' }}>

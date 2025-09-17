@@ -1,4 +1,6 @@
+import { useRef } from 'react';
 import '../css/Display.css';
+import type { BeatState } from '../timing_engine/rhythm.types';
 import BPMGrid from './BPM-Grid';
 import BPMSpinner from './BPM-Spinner';
 
@@ -12,6 +14,8 @@ interface DisplayProps {
   usePoly: boolean;
   subdivision: number;
   polySubdivision: number;
+  totalBeats: BeatState[];
+  totalPolyBeats: BeatState[];
   updateBPM: (value: number) => void;
   togglePlayback: () => void;
   handleBeatClick: (i: number) => void;
@@ -32,7 +36,11 @@ function Display({
   polySubdivision,
   handleBeatClick,
   handlePolyBeatClick,
+  totalBeats,
+  totalPolyBeats,
 }: DisplayProps) {
+  const clockArm = useRef<HTMLDivElement | null>(null);
+
   return (
     <div className="display_container">
       <section className="grid-outer-container">
@@ -42,6 +50,7 @@ function Display({
           beats={beats}
           currentBeat={currentBeat}
           subdivision={subdivision}
+          totalBeats={totalBeats}
           handleBeatClick={(i: number) => handleBeatClick(i)}
         />
         <BPMSpinner
@@ -59,9 +68,15 @@ function Display({
             currentBeat={polyBeat}
             smallVersion={true}
             subdivision={polySubdivision}
+            totalBeats={totalPolyBeats}
             handleBeatClick={(i: number) => handlePolyBeatClick(i)}
           />
         )}
+        <section
+          ref={clockArm}
+          className={`${isRunning ? 'running' : ''} grid-container__clock-arm`}
+          style={{ '--tempo': `${(60 / bpm) * beats}s` } as React.CSSProperties}
+        ></section>
       </section>
     </div>
   );

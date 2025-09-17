@@ -6,7 +6,7 @@
   width: fit-content;
   /* height: 420px; */
   touch-action: none;
-  z-index: 5;
+  z-index: 4;
 }
 
 .bpm-spinner__rotary {

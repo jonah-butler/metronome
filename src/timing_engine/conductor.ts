@@ -91,4 +91,8 @@ export class Conductor extends EventEmitter {
     }
     return this.isRunning;
   }
+
+  getRhythm(index: number): Rhythm {
+    return this.rhythms[index];
+  }
 }

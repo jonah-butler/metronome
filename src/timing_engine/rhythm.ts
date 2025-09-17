@@ -118,4 +118,12 @@ export class Rhythm extends EventEmitter {
     this.emit('beatChange', 1);
     this.activeOscillators = [];
   }
+
+  updateState(index: number, state: BeatState): void {
+    this.state[index] = state;
+  }
+
+  resetState(state: BeatState[]): void {
+    this.state = state;
+  }
 }

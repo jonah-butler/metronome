@@ -11,13 +11,23 @@
   pointer-events: none;
 }
 
-.grid-container__clock-arm {
+/* .grid-container__clock-arm {
   width: 3px;
   height: 50%;
   background: #f821ad;
   transform-origin: bottom center;
   position: relative;
   z-index: -1;
+} */
+
+.grid-container__clock-arm {
+  width: 3px;
+  height: 50%;
+  background: #f821ad;
+  transform-origin: bottom center;
+  position: absolute;
+  z-index: 3;
+  top: 0;
 }
 
 .grid-container__clock-arm.running {
@@ -50,9 +60,16 @@
   pointer-events: auto;
 }
 
+.grid-container .dot.off {
+  background-color: #393439ff !important;
+}
+.grid-container .dot.off:hover {
+  background-color: white !important;
+}
+
 /* .grid-container .dot:active {
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(237px) rotate(calc(-360deg / var(--beats) * var(--i))) scale(0.8); /* <-- added at the end */
+    translate(237px) rotate(calc(-360deg / var(--beats) * var(--i))) scale(0.8); /* <-- added at the end 
 } */
 
 .grid-container .dot.active:hover,
@@ -206,6 +223,6 @@
   }
 
   .grid-outer-container {
-    height: 350px;
+    height: 325px;
   }
 }
