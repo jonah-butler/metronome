@@ -64,7 +64,12 @@
   background-color: #393439ff !important;
 }
 .grid-container .dot.off:hover {
-  background-color: white !important;
+  /* background-color: white !important; */
+}
+
+.grid-container > .dot.active.off,
+.grid-container.small > .dot.active.off {
+  background-color: #393439ff !important;
 }
 
 /* .grid-container .dot:active {
@@ -75,9 +80,29 @@
 .grid-container .dot.active:hover,
 .dot:hover,
 .grid-container.small > .dot.active:hover {
-  background-color: #393439ff !important;
+  /* background-color: #393439ff !important; */
   cursor: pointer;
 }
+
+/* Desktop / mouse devices */
+/* @media (hover: hover) and (pointer: fine) {
+  .grid-container .dot.active:hover,
+  .dot:hover,
+  .grid-container.small > .dot.active:hover {
+    background-color: #393439ff !important;
+    cursor: pointer;
+  }
+}
+
+/* Touch devices */
+/* @media (hover: none) and (pointer: coarse) {
+  .grid-container .dot.active:active,
+  .dot:active,
+  .grid-container.small > .dot.active:active {
+    background-color: #393439ff !important;
+    cursor: pointer;
+  }
+} */
 
 .grid-container .dot.subdivision {
   width: 10px;
