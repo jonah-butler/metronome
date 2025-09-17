@@ -277,7 +277,7 @@ function App() {
   function updatePolyBeatCount(value: string): void {
     const newTotalBeats = new Array(
       parseInt(value) /
-        Subdivisions[subdivision.value as keyof typeof Subdivisions],
+        Subdivisions[polySubdivision.value as keyof typeof Subdivisions],
     ).fill(1);
 
     if (conductor.current) {
@@ -286,8 +286,8 @@ function App() {
     }
 
     totalPolyBeatsRef.current = newTotalBeats;
-    console.log(totalPolyBeatsRef.current);
     setTotalPolyBeats(newTotalBeats);
+    console.log(newTotalBeats);
     setPolyBeatCount(
       beatCountData.find((b) => b.value === value) || beatCountData[3],
     );
