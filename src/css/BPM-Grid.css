@@ -67,10 +67,10 @@
   /* background-color: white !important; */
 }
 
-.grid-container > .dot.active.off,
+/* .grid-container > .dot.active.off,
 .grid-container.small > .dot.active.off {
   background-color: #393439ff !important;
-}
+} */
 
 /* .grid-container .dot:active {
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
