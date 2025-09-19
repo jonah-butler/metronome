@@ -51,23 +51,16 @@ export class Conductor extends EventEmitter {
     this.rhythms = [];
   }
 
-  start(): boolean {
+  async start(): Promise<boolean> {
     for (const rhythm of this.rhythms) {
+      await this.audioCtx.resume();
       rhythm.init(this.currentTime);
-
-      rhythm.play();
-      rhythm.advance(this.bpm, this.currentTime);
     }
 
     this.isRunning = true;
     this.schedule();
 
-    setTimeout(
-      () => {
-        this.emit('isRunning', this.isRunning);
-      },
-      (this.currentTime - this.currentTime + Conductor.LOOK_AHEAD) * 1000,
-    );
+    this.emit('isRunning', this.isRunning);
     return this.isRunning;
   }
 

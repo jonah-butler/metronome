@@ -136,23 +136,24 @@ function App() {
    */
   useEffect(() => {
     if (!conductor.current) {
+      console.log('audio ctx established');
       const audioCtx = new AudioContext();
       conductor.current = new Conductor({ audioCtx, bpm: defaultBpm });
 
       conductor.current.on('isRunning', (state: boolean): void => {
+        console.log('is running!');
         setIsRunning(state);
       });
     }
-
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
 
     conductor.current.removeRhythms();
 
+    console.log('updating rhythm');
     const updateRhythm = new Rhythm({
       subdivision: Subdivisions[subdivision.value as keyof typeof Subdivisions],
       sound: osc,
       beats: parseInt(beatCount.value),
-      // state: defaultBeats, // non-reactive
       state: totalBeatsRef.current,
     });
 
@@ -167,7 +168,6 @@ function App() {
         sound: polyOsc,
         beats: parseInt(beatCount.value),
         poly: parseInt(polyBeatCount.value),
-        // state: defaultPolyBeats, // non-reactive
         state: totalPolyBeatsRef.current,
       });
 
@@ -189,7 +189,7 @@ function App() {
         if (!conductor.current) return;
 
         // set is running to keep current isRunning state up to date
-        setIsRunning(conductor.current.start());
+        conductor.current.start().then((isRunning) => setIsRunning(isRunning));
       }, 50);
     }
   }, [
@@ -200,10 +200,6 @@ function App() {
     polyBeatCount,
     polyFrequency,
     polySubdivision,
-    // defaultBeats,
-    // defaultPolyBeats,
-    // totalBeats,
-    // totalPolyBeats,
   ]);
 
   function toggleMetronome(): void {
@@ -257,6 +253,7 @@ function App() {
   }
 
   function updateBeatCount(value: string): void {
+    console.log('updating beat count');
     const newTotalBeats = new Array(
       parseInt(value) /
         Subdivisions[subdivision.value as keyof typeof Subdivisions],
@@ -336,6 +333,7 @@ function App() {
     });
 
     if (conductor.current) {
+      console.log(state);
       const rhythm = conductor.current.getRhythm(0);
       rhythm.updateState(i, state);
     }
@@ -352,8 +350,11 @@ function App() {
       return prev.map((value, index) => (index === i ? state : value));
     });
 
+    console.log(state);
+
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(1);
+      console.log(state);
       rhythm.updateState(i, state);
     }
   };

@@ -48,8 +48,10 @@ export class Rhythm extends EventEmitter {
 
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
+    console.log('beatSource: ', beatSource);
 
     const totalSteps = Math.round(beatSource / this.subdivision);
+    console.log('total steps: ', totalSteps);
 
     this.step = (this.step + 1) % totalSteps;
 
@@ -73,9 +75,12 @@ export class Rhythm extends EventEmitter {
 
   advance(targetBpm: number, currentTime: number): void {
     const spb = this.spb(targetBpm);
+    console.log('seconds per beat: ', spb);
     const step = spb * this.subdivision;
+    console.log('step: ', step);
 
     this.nextNote = Math.max(this.nextNote + step, currentTime + step);
+    console.log('this.nextNote: ', this.nextNote);
 
     this.trackBeat();
   }
@@ -102,6 +107,7 @@ export class Rhythm extends EventEmitter {
         );
       };
     } else {
+      console.log('beat change in rhythm');
       this.emit('beatChange', tempBeat);
     }
   }
