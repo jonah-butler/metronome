@@ -63,6 +63,10 @@
 .grid-container .dot.off {
   background-color: #393439ff !important;
 }
+.grid-container > .dot.off.active,
+.grid-container.small > .dot.off.active {
+  background-color: #8b8b8b !important;
+}
 .grid-container .dot.off:hover {
   /* background-color: white !important; */
 }
