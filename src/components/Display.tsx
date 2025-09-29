@@ -1,8 +1,9 @@
-import { useRef } from 'react';
+import { type ReactNode } from 'react';
 import '../css/Display.css';
 import type { BeatState } from '../timing_engine/rhythm.types';
 import BPMGrid from './BPM-Grid';
 import BPMSpinner from './BPM-Spinner';
+import MetronomeClockArm from './Metronome-Clock-Arm';
 
 interface DisplayProps {
   isRunning: boolean;
@@ -16,6 +17,8 @@ interface DisplayProps {
   polySubdivision: number;
   totalBeats: BeatState[];
   totalPolyBeats: BeatState[];
+  subdivisionIcon: ReactNode;
+  polySubdivisionIcon: ReactNode;
   updateBPM: (value: number) => void;
   togglePlayback: () => void;
   handleBeatClick: (i: number) => void;
@@ -38,32 +41,35 @@ function Display({
   handlePolyBeatClick,
   totalBeats,
   totalPolyBeats,
+  subdivisionIcon,
+  polySubdivisionIcon,
 }: DisplayProps) {
-  const clockArm = useRef<HTMLDivElement | null>(null);
-
   return (
-    <div className="display_container">
-      <section className="grid-outer-container">
+    <div className="metronome">
+      <section className="metronome__inner-container">
+        {/* Large Outer BPM Grid */}
         <BPMGrid
-          isRunning={isRunning}
-          bpm={bpm}
           beats={beats}
           currentBeat={currentBeat}
           subdivision={subdivision}
           totalBeats={totalBeats}
           handleBeatClick={(i: number) => handleBeatClick(i)}
         />
+
+        {/*  BPM Rotary Dial | Play/Pause | BPM Tap */}
         <BPMSpinner
           togglePlayback={togglePlayback}
           updateBPM={updateBPM}
           isRunning={isRunning}
           bpm={bpm}
           usePolyrhythm={usePoly}
+          subdivisionIcon={subdivisionIcon}
+          polySubdivisionIcon={polySubdivisionIcon}
         />
+
+        {/* Small Inner BPM Grid */}
         {usePoly && (
           <BPMGrid
-            isRunning={isRunning}
-            bpm={bpm}
             beats={polyrhythm}
             currentBeat={polyBeat}
             smallVersion={true}
@@ -72,11 +78,9 @@ function Display({
             handleBeatClick={(i: number) => handlePolyBeatClick(i)}
           />
         )}
-        <section
-          ref={clockArm}
-          className={`${isRunning ? 'running' : ''} grid-container__clock-arm`}
-          style={{ '--tempo': `${(60 / bpm) * beats}s` } as React.CSSProperties}
-        ></section>
+
+        {/* Rotating Clock Arm */}
+        <MetronomeClockArm isRunning={isRunning} bpm={bpm} beats={beats} />
       </section>
     </div>
   );

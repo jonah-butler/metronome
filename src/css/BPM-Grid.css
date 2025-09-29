@@ -1,29 +1,22 @@
 .grid-container {
+  /* --width-lg: 390px;
+  --height-lg: 390px; */
   display: flex;
   justify-content: center;
-  width: 470px;
-  height: 470px;
+  width: var(--width-lg);
+  height: var(--height-lg);
   border-radius: 50%;
-  border: 3px solid #242424;
+  border: 3px solid var(--light-black);
   position: relative;
   z-index: 5;
   position: absolute;
   pointer-events: none;
 }
 
-/* .grid-container__clock-arm {
-  width: 3px;
-  height: 50%;
-  background: #f821ad;
-  transform-origin: bottom center;
-  position: relative;
-  z-index: -1;
-} */
-
 .grid-container__clock-arm {
   width: 3px;
   height: 50%;
-  background: #f821ad;
+  background: var(--pink-purple);
   transform-origin: bottom center;
   position: absolute;
   z-index: 3;
@@ -45,127 +38,115 @@
 }
 
 .grid-container .dot {
-  position: absolute;
+  /* position: absolute;
   top: 47%;
   left: 47%;
   width: 25px;
   height: 25px;
-  background-color: #f821ad;
+  background-color: var(--pink-purple);
   transition: all 0.1s linear;
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
     translate(237px) rotate(calc(-360deg / var(--beats) * var(--i)));
   transform-origin: center;
   z-index: 6;
+  pointer-events: auto; */
+  position: absolute;
+  top: 47%;
+  left: 46.8%;
+  width: 25px;
+  height: 25px;
+  background-color: var(--pink-purple);
+  transition: all 0.1s linear;
+  border-radius: 50%;
+  transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
+    translate(199px) rotate(calc(-360deg / var(--beats) * var(--i)));
+  transform-origin: center;
+  z-index: 6;
   pointer-events: auto;
 }
 
 .grid-container .dot.off {
-  background-color: #393439ff !important;
+  background-color: var(--dark-gray) !important;
 }
 .grid-container > .dot.off.active,
 .grid-container.small > .dot.off.active {
   background-color: #8b8b8b !important;
 }
-.grid-container .dot.off:hover {
-  /* background-color: white !important; */
-}
-
-/* .grid-container > .dot.active.off,
-.grid-container.small > .dot.active.off {
-  background-color: #393439ff !important;
-} */
-
-/* .grid-container .dot:active {
-  transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(237px) rotate(calc(-360deg / var(--beats) * var(--i))) scale(0.8); /* <-- added at the end 
-} */
 
 .grid-container .dot.active:hover,
 .dot:hover,
 .grid-container.small > .dot.active:hover {
-  /* background-color: #393439ff !important; */
   cursor: pointer;
 }
-
-/* Desktop / mouse devices */
-/* @media (hover: hover) and (pointer: fine) {
-  .grid-container .dot.active:hover,
-  .dot:hover,
-  .grid-container.small > .dot.active:hover {
-    background-color: #393439ff !important;
-    cursor: pointer;
-  }
-}
-
-/* Touch devices */
-/* @media (hover: none) and (pointer: coarse) {
-  .grid-container .dot.active:active,
-  .dot:active,
-  .grid-container.small > .dot.active:active {
-    background-color: #393439ff !important;
-    cursor: pointer;
-  }
-} */
 
 .grid-container .dot.subdivision {
   width: 10px;
   height: 10px;
-  background-color: #9045e6ff;
-  left: 49%;
+  background-color: var(--light-purple);
+  left: 48.8%;
   top: 49%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(238px) rotate(calc(-360deg / var(--beats) * var(--i)));
+    translate(197px) rotate(calc(-360deg / var(--beats) * var(--i)));
 }
 
 .grid-container .dot.active,
 .grid-container.small .dot.active {
-  background-color: white !important;
+  background-color: var(--white) !important;
 }
 
-.grid-outer-container .grid-container.small {
+.metronome__inner-container .grid-container.small {
   position: absolute;
 }
 
 .grid-container.small {
   display: flex;
   justify-content: center;
-  width: 415px;
-  height: 415px;
+  width: 350px;
+  height: 350px;
   border-radius: 50%;
-  border: 3px solid #242424;
+  border: 3px solid var(--light-black);
   z-index: 5;
 }
 
 .grid-container.small .dot {
   position: absolute;
   top: 48%;
-  left: 48%;
+  left: 47.8%;
   width: 15px;
   height: 15px;
   transition: all 0.1s linear;
-  background-color: #f821ad;
+  background-color: var(--pink-purple);
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(211px) rotate(calc(-360deg / var(--beats) * var(--i)));
+    translate(175px) rotate(calc(-360deg / var(--beats) * var(--i)));
   transform-origin: center;
   z-index: 8;
 }
 
 .grid-container.small .dot.subdivision {
-  width: 10px;
+  /* width: 10px;
   height: 10px;
-  background-color: #9045e6ff;
+  background-color: var(--light-purple);
   left: 49%;
   top: 49%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(209px) rotate(calc(-360deg / var(--beats) * var(--i)));
+    translate(209px) rotate(calc(-360deg / var(--beats) * var(--i))); */
+  width: 10px;
+  height: 10px;
+  background-color: var(--light-purple);
+  left: 49%;
+  top: 49%;
+  transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
+    translate(177px) rotate(calc(-360deg / var(--beats) * var(--i)));
 }
 
-/* .grid-container.small .dot:active {
-  transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(209px) rotate(calc(-360deg / var(--beats) * var(--i))) scale(0.8);
-} */
+/*
+==============
+MEDIA QUERIES
+for mobile
+==============
+*/
 
 @media (max-width: 563px) {
   .grid-container {
@@ -182,7 +163,7 @@
   .grid-container .dot.subdivision {
     width: 10px;
     height: 10px;
-    background-color: #9045e6ff;
+    background-color: var(--light-purple);
     left: 48%;
     top: 48%;
     transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
@@ -201,15 +182,11 @@
   }
 
   .grid-container.small .dot.subdivision {
-    background-color: #9045e6ff;
+    background-color: var(--light-purple);
     left: 48%;
     top: 48%;
     transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
       translate(137px) rotate(calc(-360deg / var(--beats) * var(--i)));
-  }
-
-  .bpm-spinner {
-    /* width: 320px; */
   }
 
   .bpm-spinner__rotary {
@@ -218,27 +195,27 @@
   }
 
   .bpm-spinner__button {
-    width: 130px !important;
-    height: 130px !important;
+    width: 150px !important;
+    height: 150px !important;
     top: 48% !important;
   }
 
   .bpm-spinner__button h4 {
-    font-size: 28px;
+    font-size: 28px !important;
   }
 
   .bpm-spinner__button h5 {
-    font-size: 13px;
+    font-size: 13px !important;
   }
 
   .display-container {
     position: relative;
-    top: -9px;
+    top: -4px;
   }
 
   .play-button {
-    width: 65px;
-    height: 65px;
+    width: 65px !important;
+    height: 65px !important;
   }
 
   .play-button svg {
@@ -251,7 +228,11 @@
     left: 118px !important;
   }
 
-  .grid-outer-container {
+  .bpm-spinner__rotary > .circle.small {
+    height: 42%;
+  }
+
+  .metronome__inner-container {
     height: 325px;
   }
 }

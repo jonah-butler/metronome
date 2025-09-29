@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
-import BPMSpinner from './components/BPM-Spinner';
 import Display from './components/Display';
 import Dropdown, { type DropdownOptions } from './components/Dropdown';
 import Slider from './components/Slider';
@@ -362,11 +361,11 @@ function App() {
 
   return (
     <>
-      <section>
-        <div className="absolute-note-container">
+      <section className="metronome__outer-container">
+        {/* <div className="absolute-note-container">
           <span>{subdivision.icon}</span>
           {usePolyrhythm && <span>{polySubdivision.icon}</span>}
-        </div>
+        </div> */}
         <Display
           isRunning={isRunning}
           bpm={bpm}
@@ -380,16 +379,18 @@ function App() {
           subdivision={
             Subdivisions[subdivision.value as keyof typeof Subdivisions]
           }
+          subdivisionIcon={subdivision.icon}
           polySubdivision={
             Subdivisions[polySubdivision.value as keyof typeof Subdivisions]
           }
+          polySubdivisionIcon={polySubdivision.icon}
           handleBeatClick={handleBeatClick}
           handlePolyBeatClick={handlePolyBeatClick}
           totalBeats={totalBeats}
           totalPolyBeats={totalPolyBeats}
         />
       </section>
-      <section className="spinner-container" style={{ display: 'none' }}>
+      {/* <section className="spinner-container" style={{ display: 'none' }}>
         <BPMSpinner
           togglePlayback={toggleMetronome}
           bpm={bpm}
@@ -397,7 +398,7 @@ function App() {
           updateBPM={setBPM}
           usePolyrhythm={usePolyrhythm}
         />
-      </section>
+      </section> */}
       <section className="polyrhythm-header-container">
         <Toggle
           label=""

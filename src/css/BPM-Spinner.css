@@ -10,10 +10,12 @@
 }
 
 .bpm-spinner__rotary {
+  --rotary-width-lg: 340px;
+  --rotary-height-lg: 340px;
+  width: var(--rotary-width-lg);
+  height: var(--rotary-height-lg);
   position: relative;
-  width: 400px;
   overflow: hidden;
-  height: 400px;
   border-radius: 50%;
   cursor: grab;
   user-select: none;
@@ -32,8 +34,10 @@
 
 .bpm-spinner__button {
   position: absolute;
-  width: 300px;
-  height: 300px;
+  width: 250px;
+  height: 250px;
+  /* width: 300px;
+  height: 300px; */
   top: 48%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -85,6 +89,8 @@
 }
 
 .bpm-spinner__button h4 {
+  position: relative;
+  top: 10px;
   font-size: 60px;
   margin: 0 10px;
 }
@@ -97,15 +103,24 @@
 .circle.small {
   padding-bottom: 46%;
   left: 157px;
+  height: 44%;
 }
 
 .circle {
-  position: absolute;
+  /* position: absolute;
   width: 1.5%;
   padding-bottom: 50%;
   z-index: 1;
   top: 20px;
-  left: 200px;
+  left: 195px;
+  height: 40%; */
+  /* transition: all 0.3s linear; */
+  position: absolute;
+  width: 1.5%;
+  padding-bottom: 50%;
+  z-index: 1;
+  top: 17px;
+  left: 166px;
   height: 40%;
   /* transition: all 0.3s linear; */
 }
@@ -138,7 +153,7 @@
 .play-button__container {
   position: absolute;
   display: flex;
-  bottom: 10px;
+  bottom: 5px;
   background: black;
   border-radius: 50%;
   width: 100px;
@@ -151,4 +166,27 @@
   border-radius: 50%;
   width: 85px;
   height: 85px;
+}
+
+/* .display-container {
+  position: relative;
+  top: 10px;
+} */
+
+.note-container {
+  position: absolute;
+  top: 55px;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+@media (max-width: 563px) {
+  .note-container {
+    top: 42px;
+
+    svg.note-svg {
+      max-width: 25px;
+      max-height: 25px;
+    }
+  }
 }
