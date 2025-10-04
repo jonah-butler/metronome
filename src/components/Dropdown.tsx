@@ -15,8 +15,8 @@ interface DropdownProps {
 
 function Dropdown({ data, label, currentValue, onChange }: DropdownProps) {
   return (
-    <div className="dropdown-container">
-      <div className="dropdown-label-container">{label}</div>
+    <div className="dropdown">
+      <div className="dropdown__label-container">{label}</div>
       <div></div>
       <select
         value={currentValue.value}

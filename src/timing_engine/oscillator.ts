@@ -15,28 +15,33 @@ export class Oscillator implements NotePlayer {
     isSubdividedNote: boolean,
   ): OscillatorNode {
     const osc = this.audioCtx.createOscillator();
-    osc.type = 'square';
     const gain = this.audioCtx.createGain();
 
-    osc.frequency.setValueAtTime(this.frequency, startTime);
+    // compute base frequency
+    let freq = this.frequency;
+    if (isFirstNote) freq += 200;
+    else if (isSubdividedNote) freq -= 50;
 
-    if (isFirstNote) {
-      osc.frequency.setValueAtTime(this.frequency + 200, startTime);
-    } else if (isSubdividedNote) {
-      osc.frequency.setValueAtTime(this.frequency - 50, startTime);
-    } else {
-      osc.frequency.setValueAtTime(this.frequency, startTime);
-    }
+    osc.frequency.setValueAtTime(freq, startTime);
 
+    // connect chain properly
     osc.connect(gain);
+    gain.connect(this.audioCtx.destination);
 
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(1, startTime + 0.001);
-    gain.gain.linearRampToValueAtTime(0, startTime + 0.05);
+    // avoid negative time scheduling
+    const safeStart = Math.max(0, startTime - 0.005);
 
-    osc.connect(this.audioCtx.destination);
+    gain.gain.setValueAtTime(0.001, safeStart);
+    gain.gain.exponentialRampToValueAtTime(1, startTime + 0.005);
+    gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.045);
+
     osc.start(startTime);
     osc.stop(startTime + 0.05);
+
+    osc.onended = () => {
+      osc.disconnect();
+      gain.disconnect();
+    };
 
     return osc;
   }
