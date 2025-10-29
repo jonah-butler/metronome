@@ -1,5 +1,8 @@
+import { type MouseEvent, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import '../css/BPM-Grid.css';
 import type { BeatState } from '../timing_engine/rhythm.types';
+import { SubdivisionModal } from './Modals/Subdivision-Modal';
 
 interface BPMGridProps {
   beats: number;
@@ -18,13 +21,63 @@ function BPMGrid({
   handleBeatClick,
   totalBeats,
 }: BPMGridProps) {
-  function isSubdividedNote(beat: number): boolean {
-    return !Number.isInteger(beat);
+  function isSubdividedNote(
+    beats: number,
+    beat: number,
+    subdivision: number,
+  ): boolean {
+    return !Number.isInteger((beats / (beats / subdivision)) * beat);
   }
 
   function isSameBeat(i: number): boolean {
     return 1 + i * subdivision === currentBeat;
   }
+
+  const PRESS_THRESHOLD = 1000;
+
+  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+  const [longPress, setLongPress] = useState(false);
+
+  type ModalCoordinates = {
+    x: number;
+    y: number;
+  };
+
+  const [coordinates, setCoordinates] = useState<ModalCoordinates>({
+    x: 0,
+    y: 0,
+  });
+
+  const handleMouseDown = (
+    beat: number,
+    event: MouseEvent<HTMLDivElement, Event>,
+  ) => {
+    setCoordinates({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+    }
+
+    pressTimer.current = setTimeout(() => {
+      if (!isSubdividedNote(beats, beat, subdivision)) {
+        setLongPress(true);
+      }
+    }, PRESS_THRESHOLD);
+  };
+
+  const handleMouseUp = (beat: number) => {
+    if (pressTimer.current) {
+      clearTimeout(pressTimer.current);
+    }
+
+    if (!longPress) {
+      handleBeatClick(beat);
+      setLongPress(false);
+    }
+  };
 
   return (
     <div
@@ -34,13 +87,23 @@ function BPMGrid({
       {totalBeats.map((beat, i) => {
         return (
           <div
-            className={`dot${isSameBeat(i) ? ' active' : ''} ${isSubdividedNote((beats / (beats / subdivision)) * i) ? 'subdivision' : ''} ${beat === 0 ? 'off' : ''}`}
+            className={`dot${isSameBeat(i) ? ' active' : ''} ${isSubdividedNote(beats, i, subdivision) ? 'subdivision' : ''} ${beat === 0 ? 'off' : ''}`}
             key={i}
             style={{ '--i': i } as React.CSSProperties}
-            onClick={() => handleBeatClick(i)}
+            // onClick={() => handleBeatClick(i)}
+            onMouseDown={(event) => handleMouseDown(i, event)}
+            onMouseUp={() => handleMouseUp(i)}
           ></div>
         );
       })}
+      {createPortal(
+        <SubdivisionModal
+          isVisible={longPress}
+          handleBlur={() => setLongPress(false)}
+          coordinates={coordinates}
+        />,
+        document.body,
+      )}
     </div>
   );
 }

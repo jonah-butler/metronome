@@ -71,7 +71,7 @@
 }
 
 .bpm-spinner__button.running {
-  animation: var(--tempo) ease-in infinite alternate pulse;
+  animation: var(--tempo) linear infinite alternate pulse;
 }
 
 @keyframes pulse {

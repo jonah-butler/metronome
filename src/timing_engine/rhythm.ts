@@ -6,6 +6,7 @@ export class Rhythm extends EventEmitter {
   private killed = true;
   private step: number = 0;
   private activeOscillators: OscillatorNode[] = [];
+  private pendingSubdivision: number | null = null;
 
   poly: number;
   beats: number;
@@ -26,7 +27,14 @@ export class Rhythm extends EventEmitter {
   }
 
   private spb(bpm: number): number {
+    console.log((this.beats * (60 / bpm)) / this.poly);
     return (this.beats * (60 / bpm)) / this.poly;
+  }
+
+  private toTicksPerBeat(sub: number): number {
+    // If sub < 1, it's a duration factor (e.g., 0.5 for eighths) -> invert it.
+    // If sub >= 1, assume it's a count (e.g., 2 for eighths) -> use as-is.
+    return sub < 1 ? 1 / sub : sub;
   }
 
   // private totalBeats(): number {
@@ -47,13 +55,39 @@ export class Rhythm extends EventEmitter {
   }
 
   private trackBeat(): void {
+    // console.log('************');
+    // console.log('subdivision: ', this.subdivision);
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
 
     const totalSteps = Math.round(beatSource / this.subdivision);
 
+    // IGNORE FOR NOW
+    if (this.pendingSubdivision) {
+      // console.log('beat track in pending: ', this.beatTrack);
+      // console.log('pending sub: ', this.pendingSubdivision);
+      // console.log(this.beatTrack / this.pendingSubdivision);
+
+      const convertedSteps =
+        Math.floor(this.beatTrack) / this.pendingSubdivision -
+        1 / this.pendingSubdivision;
+      // console.log('converted: ', convertedSteps);
+
+      this.step = convertedSteps;
+
+      this.subdivision = this.pendingSubdivision;
+
+      this.beatTrack = this.cleanFloat(this.step * this.subdivision + 1);
+      // console.log('adjusted beat track', this.beatTrack);
+
+      this.pendingSubdivision = null;
+      return;
+    }
+
     this.step = (this.step + 1) % totalSteps;
+    // console.log('step: ', this.step);
 
     this.beatTrack = this.cleanFloat(this.step * this.subdivision + 1);
+    // console.log('beat track: ', this.beatTrack);
   }
 
   private get isBeatOne(): boolean {
@@ -72,16 +106,30 @@ export class Rhythm extends EventEmitter {
   }
 
   advance(targetBpm: number, currentTime: number): void {
-    const spb = this.spb(targetBpm);
-    const step = spb * this.subdivision;
+    const secondsPerBeat = 60 / targetBpm;
 
-    this.nextNote = Math.max(this.nextNote + step, currentTime + step);
+    // Normalize subdivision into "ticks per beat"
+    const ticksPerBeat = this.toTicksPerBeat(this.subdivision);
 
-    this.trackBeat();
+    // This rhythm’s beat length vs the bar (handles polyrhythms)
+    const rhythmBeatScale = this.beats / this.poly;
+
+    // One tick duration in seconds
+    const step = secondsPerBeat * rhythmBeatScale * (1 / ticksPerBeat);
+
+    if (this.nextNote <= currentTime) {
+      const stepsLate = Math.floor((currentTime - this.nextNote) / step) + 1;
+      this.nextNote += stepsLate * step;
+      for (let i = 0; i < stepsLate; i++) this.trackBeat();
+    } else {
+      this.nextNote += step;
+      this.trackBeat();
+    }
   }
 
-  play(): void {
+  play(bpm: number): void {
     const tempBeat = this.beatTrack;
+    console.log('playing beat: ', tempBeat);
 
     if (this.state[this.currentBeat - 1]) {
       const osc = this.sound.play(
@@ -95,6 +143,7 @@ export class Rhythm extends EventEmitter {
       osc.onended = (): void => {
         if (!this.killed) {
           this.emit('beatChange', tempBeat);
+          this.emit('bpm', bpm);
         }
 
         this.activeOscillators = this.activeOscillators.filter(
@@ -103,6 +152,7 @@ export class Rhythm extends EventEmitter {
       };
     } else {
       this.emit('beatChange', tempBeat);
+      this.emit('bpm', bpm);
     }
   }
 
@@ -125,5 +175,10 @@ export class Rhythm extends EventEmitter {
 
   resetState(state: BeatState[]): void {
     this.state = state;
+  }
+
+  setSubdivision(subdivision: number): void {
+    this.pendingSubdivision = subdivision;
+    // this.subdivision = subdivision;
   }
 }

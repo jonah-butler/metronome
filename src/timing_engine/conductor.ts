@@ -26,7 +26,7 @@ export class Conductor extends EventEmitter {
 
     for (const rhythm of this.rhythms) {
       if (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
-        rhythm.play();
+        rhythm.play(this.bpm);
         rhythm.advance(this.bpm, this.currentTime);
       }
     }
@@ -78,9 +78,9 @@ export class Conductor extends EventEmitter {
     if (!this.isRunning) {
       this.bpm = bpm;
     } else {
-      this.stop();
+      // this.stop();
       this.bpm = bpm;
-      this.start();
+      // this.start();
     }
     return this.isRunning;
   }

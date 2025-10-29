@@ -1,0 +1,6 @@
+.subdivision-modal {
+  width: fit-content;
+  height: fit-content;
+  position: absolute;
+  z-index: 20;
+}

@@ -57,7 +57,7 @@
   width: 25px;
   height: 25px;
   background-color: var(--pink-purple);
-  transition: all 0.1s linear;
+  /* transition: all 0.1s linear; */
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
     translate(199px) rotate(calc(-360deg / var(--beats) * var(--i)));
@@ -115,7 +115,7 @@
   left: 47.8%;
   width: 15px;
   height: 15px;
-  transition: all 0.1s linear;
+  /* transition: all 0.1s linear; */
   background-color: var(--pink-purple);
   border-radius: 50%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))

@@ -186,7 +186,7 @@ function BPMSpinner({
       <div
         onClick={tapTempo}
         className={`${isRunning ? 'running ' : ''}${usePolyrhythm ? 'small ' : ''}bpm-spinner__button`}
-        style={{ '--tempo': `${60 / styleCount}s` } as React.CSSProperties}
+        style={{ '--tempo': `${60 / styleCount / 2}s` } as React.CSSProperties} // fix this
       >
         <span className="tap-indicator">tap</span>
         <div className="note-container">

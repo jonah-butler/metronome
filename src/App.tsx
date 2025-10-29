@@ -108,16 +108,23 @@ function App() {
    * using a setTimeout to correctly reset the rhythm visualizer arm
    *
    */
-  useEffect(() => {
+  // useEffect(() => {
+  //   if (!conductor.current) return;
+  //   conductor.current.update(bpm);
+
+  //   // setIsRunning(false);
+  //   // setTimeout(() => {
+  //   //   if (!conductor.current) return;
+
+  //   //   conductor.current.update(bpm);
+  //   // }, 50);
+  // }, [bpm]);
+
+  // Alternative to updating BPM
+  const updateBPM = (bpm: number) => {
     if (!conductor.current) return;
-
-    setIsRunning(false);
-    setTimeout(() => {
-      if (!conductor.current) return;
-
-      conductor.current.update(bpm);
-    }, 50);
-  }, [bpm]);
+    conductor.current.update(bpm);
+  };
 
   /**
    * +++++++++++++++
@@ -144,16 +151,31 @@ function App() {
     }
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
 
-    conductor.current.removeRhythms();
+    if (!isRunning) {
+      conductor.current.removeRhythms();
 
-    const updateRhythm = new Rhythm({
-      subdivision: Subdivisions[subdivision.value as keyof typeof Subdivisions],
-      sound: osc,
-      beats: parseInt(beatCount.value),
-      state: totalBeatsRef.current,
-    });
+      const updateRhythm = new Rhythm({
+        subdivision:
+          Subdivisions[subdivision.value as keyof typeof Subdivisions],
+        sound: osc,
+        beats: parseInt(beatCount.value),
+        state: totalBeatsRef.current,
+      });
 
-    conductor.current.addRhythm(updateRhythm);
+      conductor.current.addRhythm(updateRhythm);
+
+      updateRhythm.on('beatChange', (beat: number) => {
+        setCurrentBeat(beat);
+      });
+
+      // TODO: prevent the rhythm class from emitting this value
+      // if the conductor does not indicate an update
+      updateRhythm.on('bpm', (newBPM: number) => {
+        if (newBPM !== bpmRef.current) {
+          setBPM(newBPM);
+        }
+      });
+    }
 
     if (usePolyrhythm) {
       const polyOsc = new Oscillator(conductor.current.audioCtx, polyFrequency);
@@ -174,20 +196,16 @@ function App() {
       conductor.current.addRhythm(polyRhythm);
     }
 
-    updateRhythm.on('beatChange', (beat: number) => {
-      setCurrentBeat(beat);
-    });
+    // if (isRunningRef.current) {
+    //   setIsRunning(false);
 
-    if (isRunningRef.current) {
-      setIsRunning(false);
+    //   setTimeout(() => {
+    //     if (!conductor.current) return;
 
-      setTimeout(() => {
-        if (!conductor.current) return;
-
-        // set is running to keep current isRunning state up to date
-        conductor.current.start().then((isRunning) => setIsRunning(isRunning));
-      }, 50);
-    }
+    //     // set is running to keep current isRunning state up to date
+    //     conductor.current.start().then((isRunning) => setIsRunning(isRunning));
+    //   }, 50);
+    // }
   }, [
     subdivision,
     beatCount,
@@ -211,6 +229,7 @@ function App() {
   }
 
   function updateSubdivision(value: string): void {
+    console.log('updating');
     const newSubdivision =
       subdivisionData.find((s) => s.value === value) || subdivisionData[0];
 
@@ -222,6 +241,9 @@ function App() {
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(0);
       rhythm.resetState(newTotalBeats); // updates rhythm state
+      rhythm.setSubdivision(
+        Subdivisions[newSubdivision.value as keyof typeof Subdivisions],
+      );
     }
 
     totalBeatsRef.current = newTotalBeats; // used in useEffect
@@ -375,7 +397,8 @@ function App() {
           polyBeat={polyBeat}
           usePoly={usePolyrhythm}
           togglePlayback={toggleMetronome}
-          updateBPM={setBPM}
+          // updateBPM={setBPM}
+          updateBPM={updateBPM}
           subdivision={
             Subdivisions[subdivision.value as keyof typeof Subdivisions]
           }
