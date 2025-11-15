@@ -26,7 +26,7 @@ export class Conductor extends EventEmitter {
 
     for (const rhythm of this.rhythms) {
       if (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
-        rhythm.play(this.bpm);
+        rhythm.play();
         rhythm.advance(this.bpm, this.currentTime);
       }
     }
@@ -36,8 +36,9 @@ export class Conductor extends EventEmitter {
     }
   }
 
-  addRhythm(...rhythms: Rhythm[]): void {
-    this.rhythms = [...this.rhythms, ...rhythms];
+  addRhythm(rhythm: Rhythm): void {
+    rhythm.init(this.currentTime);
+    this.rhythms = [...this.rhythms, rhythm];
   }
 
   removeRhythms(): void {
@@ -49,6 +50,15 @@ export class Conductor extends EventEmitter {
       rhythm.removeAllListeners();
     }
     this.rhythms = [];
+  }
+
+  removeRhythm(index: number) {
+    if (this.rhythms[index]) {
+      this.rhythms = [
+        ...this.rhythms.slice(0, index),
+        ...this.rhythms.slice(index + 1),
+      ];
+    }
   }
 
   async start(): Promise<boolean> {
@@ -75,13 +85,15 @@ export class Conductor extends EventEmitter {
   }
 
   update(bpm: number): boolean {
-    if (!this.isRunning) {
-      this.bpm = bpm;
-    } else {
-      // this.stop();
-      this.bpm = bpm;
-      // this.start();
+    const oldBpm = this.bpm;
+    this.bpm = bpm;
+    const now = this.currentTime;
+
+    for (const rhythm of this.rhythms) {
+      rhythm.applyTempoChange(oldBpm, bpm, now);
     }
+
+    this.emit('updateBPM', this.bpm);
     return this.isRunning;
   }
 

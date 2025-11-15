@@ -4,4 +4,5 @@ export interface NotePlayer {
     isFirstNote: boolean,
     isSubdividedNote: boolean,
   ): OscillatorNode;
+  updateFrequency(frequency: number): void;
 }

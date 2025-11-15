@@ -98,12 +98,14 @@ function BPMSpinner({
   const lastTap = useRef(0);
   const intervals = useRef<number[]>([]);
 
+  const TAP_SECONDS_INTERVAL = 4000;
+
   function tapTempo(e: MouseEvent<HTMLDivElement>): void {
     e.preventDefault();
 
     const now = performance.now();
 
-    if (lastTap.current && now - lastTap.current > 4000) {
+    if (lastTap.current && now - lastTap.current > TAP_SECONDS_INTERVAL) {
       intervals.current = [];
     }
 
@@ -122,7 +124,9 @@ function BPMSpinner({
           ? (sorted[mid - 1] + sorted[mid]) / 2
           : sorted[mid];
 
-      const bpm = Math.min(Math.round(60 / (median / 1000)), 250);
+      const min = Math.round(60 / (median / 1000));
+      const minClamped = min < 20 ? 20 : min;
+      const bpm = Math.min(minClamped, 250);
 
       countRef.current = bpm;
       setCount(bpm);

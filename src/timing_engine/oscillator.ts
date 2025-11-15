@@ -17,6 +17,8 @@ export class Oscillator implements NotePlayer {
     const osc = this.audioCtx.createOscillator();
     const gain = this.audioCtx.createGain();
 
+    osc.type = 'sine';
+
     // compute base frequency
     let freq = this.frequency;
     if (isFirstNote) freq += 200;
@@ -31,8 +33,8 @@ export class Oscillator implements NotePlayer {
     // avoid negative time scheduling
     const safeStart = Math.max(0, startTime - 0.005);
 
-    gain.gain.setValueAtTime(0.001, safeStart);
-    gain.gain.exponentialRampToValueAtTime(1, startTime + 0.005);
+    gain.gain.setValueAtTime(0.01, safeStart);
+    gain.gain.exponentialRampToValueAtTime(0.5, startTime + 0.005);
     gain.gain.exponentialRampToValueAtTime(0.01, startTime + 0.045);
 
     osc.start(startTime);
@@ -44,5 +46,9 @@ export class Oscillator implements NotePlayer {
     };
 
     return osc;
+  }
+
+  updateFrequency(frequency: number): void {
+    this.frequency = frequency;
   }
 }

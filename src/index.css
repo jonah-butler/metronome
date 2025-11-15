@@ -19,6 +19,9 @@
 
 body {
   display: flex;
+  margin: 0px;
+  align-items: center;
+  height: 100vh;
 }
 
 button {

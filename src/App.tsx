@@ -18,7 +18,7 @@ function App() {
    * Metronome Defaults
    * +++++++++++++++++++
    */
-  const defaultBpm = 70;
+  const defaultBpm = 20;
   const defaultFrequency = 750;
   const defaultBeatCount = beatCountData[3];
 
@@ -34,7 +34,7 @@ function App() {
    * Conductor State
    * +++++++++++++++++
    */
-  const [bpm, setBPM] = useState(70);
+  const [bpm, setBPM] = useState(20);
   const [isRunning, setIsRunning] = useState(false);
 
   /**
@@ -148,10 +148,17 @@ function App() {
       conductor.current.on('isRunning', (state: boolean): void => {
         setIsRunning(state);
       });
+
+      conductor.current.on('updateBPM', (newBPM: number) => {
+        if (newBPM !== bpmRef.current) {
+          setBPM(newBPM);
+        }
+      });
     }
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
 
     if (!isRunning) {
+      console.log('okkk');
       conductor.current.removeRhythms();
 
       const updateRhythm = new Rhythm({
@@ -167,17 +174,11 @@ function App() {
       updateRhythm.on('beatChange', (beat: number) => {
         setCurrentBeat(beat);
       });
-
-      // TODO: prevent the rhythm class from emitting this value
-      // if the conductor does not indicate an update
-      updateRhythm.on('bpm', (newBPM: number) => {
-        if (newBPM !== bpmRef.current) {
-          setBPM(newBPM);
-        }
-      });
     }
 
-    if (usePolyrhythm) {
+    if (usePolyrhythm && !isRunning) {
+      console.log('using poly');
+
       const polyOsc = new Oscillator(conductor.current.audioCtx, polyFrequency);
 
       const polyRhythm = new Rhythm({
@@ -189,11 +190,11 @@ function App() {
         state: totalPolyBeatsRef.current,
       });
 
+      conductor.current.addRhythm(polyRhythm);
+
       polyRhythm.on('beatChange', (beat: number): void => {
         setPolyBeat(beat);
       });
-
-      conductor.current.addRhythm(polyRhythm);
     }
 
     // if (isRunningRef.current) {
@@ -252,6 +253,7 @@ function App() {
   }
 
   function updatePolySubdivision(value: string): void {
+    console.log('updating poly');
     const newSubdivision =
       subdivisionData.find((s) => s.value === value) || subdivisionData[0];
 
@@ -263,11 +265,32 @@ function App() {
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(1);
       rhythm.resetState(newTotalBeats); // updates rhythm state
+      rhythm.setSubdivision(
+        Subdivisions[newSubdivision.value as keyof typeof Subdivisions],
+      );
     }
 
     totalPolyBeatsRef.current = newTotalBeats; // used in useEffect
     setTotalPolyBeats(newTotalBeats); // updates UI
     setPolySubdivision(newSubdivision);
+  }
+
+  function updatefrequency(frequency: number): void {
+    if (!conductor.current) return;
+
+    const baseRhythm = conductor.current.getRhythm(0);
+    baseRhythm.updateFrequency(frequency);
+
+    setFrequency(frequency);
+  }
+
+  function updatePolyFrequency(frequency: number): void {
+    if (!conductor.current) return;
+
+    const baseRhythm = conductor.current.getRhythm(1);
+    baseRhythm.updateFrequency(frequency);
+
+    setPolyFrequency(frequency);
   }
 
   function updateBeatCount(value: string): void {
@@ -310,6 +333,11 @@ function App() {
     setUsePolyrhythm(usePoly);
     if (!usePoly && selectedSetting === 'polyrhythm') {
       setSelectedSetting('metronome');
+    }
+
+    if (!usePoly && isRunning && conductor.current) {
+      conductor.current.removeRhythm(1);
+      setPolyBeat(1);
     }
   }
 
@@ -485,7 +513,7 @@ function App() {
               max={1500}
               step={10}
               currentValue={frequency}
-              onChange={setFrequency}
+              onChange={updatefrequency}
             />
           </section>
         </div>
@@ -521,7 +549,7 @@ function App() {
               max={1500}
               step={10}
               currentValue={polyFrequency}
-              onChange={setPolyFrequency}
+              onChange={updatePolyFrequency}
             />
           </section>
         </div>
