@@ -583,8 +583,6 @@ function App() {
           handlePolyBeatClick={handlePolyBeatClick}
           totalBeats={totalBeats}
           totalPolyBeats={totalPolyBeats}
-          lastBeatTime={lastBeatTimeRef.current}
-          audioCtx={conductor.current?.audioCtx}
         />
       </section>
       {/* <section className="spinner-container" style={{ display: 'none' }}>

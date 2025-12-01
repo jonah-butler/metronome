@@ -23,8 +23,6 @@ interface DisplayProps {
   togglePlayback: () => void;
   handleBeatClick: (i: number) => void;
   handlePolyBeatClick: (i: number) => void;
-  lastBeatTime: number;
-  audioCtx: AudioContext | undefined;
 }
 
 function Display({
@@ -45,8 +43,6 @@ function Display({
   totalPolyBeats,
   subdivisionIcon,
   polySubdivisionIcon,
-  lastBeatTime,
-  audioCtx,
 }: DisplayProps) {
   return (
     <div className="metronome">
