@@ -23,6 +23,8 @@ interface DisplayProps {
   togglePlayback: () => void;
   handleBeatClick: (i: number) => void;
   handlePolyBeatClick: (i: number) => void;
+  lastBeatTime: number;
+  audioCtx: AudioContext | undefined;
 }
 
 function Display({
@@ -43,6 +45,8 @@ function Display({
   totalPolyBeats,
   subdivisionIcon,
   polySubdivisionIcon,
+  lastBeatTime,
+  audioCtx,
 }: DisplayProps) {
   return (
     <div className="metronome">
@@ -80,7 +84,14 @@ function Display({
         )}
 
         {/* Rotating Clock Arm */}
-        <MetronomeClockArm isRunning={isRunning} bpm={bpm} beats={beats} />
+        <MetronomeClockArm
+          isRunning={isRunning}
+          bpm={bpm}
+          beats={beats}
+          currentBeat={currentBeat}
+          // lastBeatTime={lastBeatTime}
+          // audioCtx={audioCtx}
+        />
       </section>
     </div>
   );

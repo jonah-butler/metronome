@@ -4,6 +4,7 @@ type MetronomeClockArmProps = {
   isRunning: boolean;
   bpm: number;
   beats: number;
+  currentBeat: number;
 };
 
 export default function MetronomeClockArm({

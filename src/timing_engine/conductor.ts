@@ -21,10 +21,22 @@ export class Conductor extends EventEmitter {
     return this.audioCtx.currentTime;
   }
 
+  get numberOfRhythms(): number {
+    return this.rhythms.length;
+  }
+
+  private cleanFloat(value: number, threshold = 1e-12): number {
+    const rounded = Math.round(value);
+    return Math.abs(rounded - value) < threshold ? rounded : value;
+  }
+
   private schedule(): void {
     if (!this.isRunning) return;
 
     for (const rhythm of this.rhythms) {
+      if (rhythm.isPoly) {
+        // console.log('has poly rhythm');
+      }
       if (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
         rhythm.play();
         rhythm.advance(this.bpm, this.currentTime);
@@ -36,9 +48,61 @@ export class Conductor extends EventEmitter {
     }
   }
 
+  generateSubdivisionTable(r1: Rhythm, r2: Rhythm): number[] | undefined {
+    const partial = this.cleanFloat(r1.beats / r2.poly);
+    const beatPositionGrid = [1];
+    for (let i = 0; i < r2.poly - 1; i++) {
+      beatPositionGrid.push(beatPositionGrid[i] + partial);
+    }
+
+    return beatPositionGrid;
+  }
+
   addRhythm(rhythm: Rhythm): void {
-    rhythm.init(this.currentTime);
+    const hasRhythm = this.rhythms.length === 1;
+    rhythm.nextNote = 0;
+
+    if (hasRhythm) {
+      const anchor = this.rhythms[0];
+      const currentBeat = anchor.beatTrack;
+      const beatTable = this.generateSubdivisionTable(anchor, rhythm);
+      if (!beatTable) return;
+
+      let nextBeat = beatTable[0];
+      let step = 0;
+
+      for (let i = 0; i < beatTable.length; i++) {
+        if (beatTable[i] > currentBeat) {
+          nextBeat = beatTable[i];
+          step = i;
+          break;
+        }
+      }
+
+      const spb = 60 / this.bpm;
+
+      let deltaBeats = nextBeat - currentBeat;
+      if (deltaBeats < 0) deltaBeats += rhythm.beats;
+
+      const deltaSeconds = deltaBeats * spb;
+
+      rhythm.nextNote = anchor.nextNote + deltaSeconds;
+
+      rhythm.beatTrack = step + 1;
+      rhythm.step = step;
+
+      rhythm.killed = false;
+    } else {
+      rhythm.init(this.currentTime);
+    }
+
     this.rhythms = [...this.rhythms, rhythm];
+  }
+
+  updateBeats(updatedBeatCount: number): void {
+    for (const rhythm of this.rhythms) {
+      rhythm.updateBeats(updatedBeatCount, this.isRunning, 'base');
+    }
   }
 
   removeRhythms(): void {
@@ -84,9 +148,10 @@ export class Conductor extends EventEmitter {
     return this.isRunning;
   }
 
-  update(bpm: number): boolean {
+  updateBPM(bpm: number): void {
     const oldBpm = this.bpm;
     this.bpm = bpm;
+
     const now = this.currentTime;
 
     for (const rhythm of this.rhythms) {
@@ -94,7 +159,6 @@ export class Conductor extends EventEmitter {
     }
 
     this.emit('updateBPM', this.bpm);
-    return this.isRunning;
   }
 
   getRhythm(index: number): Rhythm {

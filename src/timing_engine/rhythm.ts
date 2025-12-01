@@ -3,11 +3,13 @@ import { type NotePlayer } from './oscillator.types';
 import { type BeatState, type RhythmParams } from './rhythm.types';
 
 export class Rhythm extends EventEmitter {
-  private killed = true;
-  private step: number = 0;
+  killed = true;
+  step: number = 0;
   activeOscillators: OscillatorNode[] = [];
-  private pendingSubdivision: number | null = null;
-  private lastBpmVersionEmitted = -1; // <- new
+  pendingSubdivision: number | null = null;
+  pendingBeatChange: number | null = null;
+  pendingBeatChangeType: 'poly' | 'base' | null = null;
+  private isPolyrhythm: boolean;
 
   poly: number; // optional poly beats defaults to [beats] value if undefined
   beats: number; // num of beats in a measure
@@ -25,23 +27,11 @@ export class Rhythm extends EventEmitter {
     this.poly = poly ?? beats;
     this.beatTrack = 1;
     this.state = state;
-  }
-
-  private spb(bpm: number): number {
-    return (this.beats * (60 / bpm)) / this.poly;
-  }
-
-  get isPolyrhythm(): boolean {
-    return this.beats !== this.poly;
+    this.isPolyrhythm = this.beats !== this.poly;
   }
 
   private toTicksPerBeat(sub: number): number {
     return sub < 1 ? 1 / sub : sub;
-  }
-
-  private cleanFloat(value: number, threshold = 1e-12): number {
-    const rounded = Math.round(value);
-    return Math.abs(rounded - value) < threshold ? rounded : value;
   }
 
   private isFloat(value: number): boolean {
@@ -50,32 +40,6 @@ export class Rhythm extends EventEmitter {
 
   private get isSubdividedNote(): boolean {
     return this.isFloat(this.beatTrack);
-  }
-
-  private generateBeatTable(): number[] {
-    if (!this.pendingSubdivision) return [];
-
-    let beatIndex = 1;
-    const beatGrid = [];
-
-    const beatSource = this.beats !== this.poly ? this.poly : this.beats;
-    const totalSteps = Math.round(beatSource / this.pendingSubdivision);
-
-    while (beatIndex <= totalSteps) {
-      let beat: number;
-      if (beatGrid.length === 0) {
-        beat = beatIndex;
-      } else {
-        beat = beatGrid[beatGrid.length - 1];
-        // works but idk if i like this
-        beat = this.cleanFloat((beat += this.pendingSubdivision));
-      }
-
-      beatGrid.push(beat);
-      beatIndex++;
-    }
-
-    return beatGrid;
   }
 
   private getNextValidBeat(beatGrid: number[]): { step: number; beat: number } {
@@ -87,7 +51,6 @@ export class Rhythm extends EventEmitter {
       }
 
       if (validBeat > this.beatTrack) {
-        // console.log(this.beatTrack);
         break;
       }
 
@@ -97,18 +60,53 @@ export class Rhythm extends EventEmitter {
     return { step: index, beat: validBeat };
   }
 
+  get isPoly(): boolean {
+    return this.isPolyrhythm;
+  }
+
+  cleanFloat(value: number, threshold = 1e-12): number {
+    const rounded = Math.round(value);
+    return Math.abs(rounded - value) < threshold ? rounded : value;
+  }
+
+  generateBeatTable(subdivision: number): number[] {
+    let beatIndex = 1;
+    const beatGrid = [];
+
+    const beatSource = this.beats !== this.poly ? this.poly : this.beats;
+    const totalSteps = Math.round(beatSource / subdivision);
+
+    while (beatIndex <= totalSteps) {
+      let beat: number;
+      if (beatGrid.length === 0) {
+        beat = beatIndex;
+      } else {
+        beat = beatGrid[beatGrid.length - 1];
+        beat = this.cleanFloat((beat += subdivision));
+      }
+
+      beatGrid.push(beat);
+      beatIndex++;
+    }
+
+    return beatGrid;
+  }
+
   private trackBeat(): void {
     const beatSource = this.beats !== this.poly ? this.poly : this.beats;
     const totalSteps = Math.round(beatSource / this.subdivision);
 
     if (this.pendingSubdivision) {
-      const beatTable = this.generateBeatTable();
+      const beatTable = this.generateBeatTable(this.pendingSubdivision);
       const nextBeatData = this.getNextValidBeat(beatTable);
 
       this.step = nextBeatData.step;
       this.subdivision = this.pendingSubdivision;
       this.beatTrack = nextBeatData.beat;
-      this.pendingSubdivision = null;
+
+      if (!this.isPolyrhythm) {
+        this.pendingSubdivision = null;
+      }
       return;
     }
 
@@ -173,24 +171,31 @@ export class Rhythm extends EventEmitter {
     }
   }
 
+  setBeatPosition(beat: number) {
+    const beatSource = this.beats !== this.poly ? this.poly : this.beats;
+    const totalSteps = Math.round(beatSource / this.subdivision);
+
+    const step = Math.round((beat - 1) / this.subdivision) % totalSteps;
+
+    this.step = step;
+    this.beatTrack = this.cleanFloat(step * this.subdivision + 1);
+  }
+
   applyTempoChange(oldBpm: number, newBpm: number, currentTime: number): void {
-    // If this note is already due or in the past, let advance() handle catching up.
     if (this.nextNote <= currentTime) return;
 
     const oldSecondsPerBeat = 60 / oldBpm;
     const newSecondsPerBeat = 60 / newBpm;
 
-    const rhythmBeatScale = this.beats / this.poly; // same scale you use in advance()
-    const tpb = this.toTicksPerBeat(this.subdivision); // ticks per beat based on subdivision
+    const rhythmBeatScale = this.beats / this.poly;
+    const tpb = this.toTicksPerBeat(this.subdivision);
 
     const oldTickSeconds = (oldSecondsPerBeat * rhythmBeatScale) / tpb;
     const newTickSeconds = (newSecondsPerBeat * rhythmBeatScale) / tpb;
 
-    // How much of the *current* tick is left under the old tempo?
     const remainingOld = this.nextNote - currentTime;
     const fractionRemaining = remainingOld / oldTickSeconds;
 
-    // Preserve phase: same fraction of the new tick’s duration
     const remainingNew = fractionRemaining * newTickSeconds;
 
     this.nextNote = currentTime + remainingNew;
@@ -198,6 +203,28 @@ export class Rhythm extends EventEmitter {
 
   play(): void {
     const tempBeat = this.beatTrack;
+
+    if (this.pendingBeatChange && tempBeat === 1) {
+      const pendingBeat = this.pendingBeatChange;
+
+      this.pendingBeatChange = null;
+      if (this.pendingBeatChangeType === 'base') {
+        if (!this.isPolyrhythm) {
+          this.poly = pendingBeat;
+        }
+
+        this.beats = pendingBeat;
+
+        if (this.isPoly) {
+          this.emit('updatedBeats', this.poly);
+        } else {
+          this.emit('updatedBeats', this.beats);
+        }
+      } else if (this.pendingBeatChangeType === 'poly') {
+        this.poly = pendingBeat;
+        this.emit('updatedBeats', pendingBeat);
+      }
+    }
 
     if (this.state[this.currentBeat - 1]) {
       const osc = this.sound.play(
@@ -231,12 +258,27 @@ export class Rhythm extends EventEmitter {
 
     this.beatTrack = 1;
     this.step = 0;
-    this.emit('beatChange', 1);
     this.activeOscillators = [];
+    this.nextNote = 0;
+    this.emit('beatChange', 1);
   }
 
   updateState(index: number, state: BeatState): void {
     this.state[index] = state;
+  }
+
+  updateBeats(
+    beats: number,
+    isRunning: boolean,
+    changeType: 'base' | 'poly',
+  ): void {
+    if (!isRunning) {
+      this.beats = beats;
+      return;
+    }
+
+    this.pendingBeatChangeType = changeType;
+    this.pendingBeatChange = beats;
   }
 
   resetState(state: BeatState[]): void {
@@ -244,9 +286,7 @@ export class Rhythm extends EventEmitter {
   }
 
   setSubdivision(subdivision: number): void {
-    console.log('updating sub');
     this.pendingSubdivision = subdivision;
-    // this.subdivision = subdivision;
   }
 
   updateFrequency(frequency: number): void {

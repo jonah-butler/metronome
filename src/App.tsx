@@ -18,7 +18,7 @@ function App() {
    * Metronome Defaults
    * +++++++++++++++++++
    */
-  const defaultBpm = 20;
+  const defaultBpm = 60;
   const defaultFrequency = 750;
   const defaultBeatCount = beatCountData[3];
 
@@ -34,7 +34,7 @@ function App() {
    * Conductor State
    * +++++++++++++++++
    */
-  const [bpm, setBPM] = useState(20);
+  const [bpm, setBPM] = useState(60);
   const [isRunning, setIsRunning] = useState(false);
 
   /**
@@ -44,10 +44,12 @@ function App() {
    */
   const [frequency, setFrequency] = useState(defaultFrequency);
 
+  const beatCountRef = useRef(defaultBeatCount);
   const [beatCount, setBeatCount] = useState<DropdownOptions>(defaultBeatCount);
   const [subdivision, setSubdivision] = useState<DropdownOptions>(
     subdivisionData[0],
   );
+  const subdivisionRef = useRef(subdivision);
   // emitted from rhythm instance
   const [currentBeat, setCurrentBeat] = useState(1);
   const defaultBeats = new Array(
@@ -69,6 +71,7 @@ function App() {
   const [polySubdivision, setPolySubdivision] = useState<DropdownOptions>(
     subdivisionData[0],
   );
+  const polySubdivisionRef = useRef(polySubdivision);
   // emitted from polyrhythm instance
   const [polyBeat, setPolyBeat] = useState(1);
   const defaultPolyBeats = new Array(
@@ -123,7 +126,7 @@ function App() {
   // Alternative to updating BPM
   const updateBPM = (bpm: number) => {
     if (!conductor.current) return;
-    conductor.current.update(bpm);
+    conductor.current.updateBPM(bpm);
   };
 
   /**
@@ -140,6 +143,10 @@ function App() {
    * > usePolyrhythm
    *
    */
+
+  const lastBeatTimeRef = useRef(0);
+  const lastBeatTrackRef = useRef(1);
+
   useEffect(() => {
     if (!conductor.current) {
       const audioCtx = new AudioContext();
@@ -154,12 +161,61 @@ function App() {
           setBPM(newBPM);
         }
       });
+
+      conductor.current.on(
+        'beat',
+        ({
+          beatTrack,
+          scheduledTime,
+        }: {
+          beatTrack: number;
+          scheduledTime: number;
+        }) => {
+          lastBeatTimeRef.current = scheduledTime;
+          lastBeatTrackRef.current = beatTrack;
+        },
+      );
     }
     const osc = new Oscillator(conductor.current.audioCtx, frequency);
 
     if (!isRunning) {
-      console.log('okkk');
       conductor.current.removeRhythms();
+      // const sound3 = new Oscillator(conductor.current.audioCtx, 100);
+      // const sound4 = new Oscillator(conductor.current.audioCtx, 300);
+      // const sound5 = new Oscillator(conductor.current.audioCtx, 1000);
+      // const sound6 = new Oscillator(conductor.current.audioCtx, 3000);
+
+      // const rhythm3 = new Rhythm({
+      //   subdivision:
+      //     Subdivisions[subdivisionData[0].value as keyof typeof Subdivisions],
+      //   sound: sound3,
+      //   beats: 4,
+      //   state: [0, 1, 1, 1],
+      // });
+
+      // const rhythm4 = new Rhythm({
+      //   subdivision:
+      //     Subdivisions[subdivisionData[1].value as keyof typeof Subdivisions],
+      //   sound: sound4,
+      //   beats: 4,
+      //   state: [0, 1, 0, 1, 0, 1, 0, 1],
+      // });
+
+      // const rhythm5 = new Rhythm({
+      //   subdivision:
+      //     Subdivisions[subdivisionData[2].value as keyof typeof Subdivisions],
+      //   sound: sound5,
+      //   beats: 4,
+      //   state: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+      // });
+
+      // const rhythm6 = new Rhythm({
+      //   subdivision:
+      //     Subdivisions[subdivisionData[3].value as keyof typeof Subdivisions],
+      //   sound: sound6,
+      //   beats: 4,
+      //   state: [0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1, 0, 1],
+      // });
 
       const updateRhythm = new Rhythm({
         subdivision:
@@ -170,15 +226,41 @@ function App() {
       });
 
       conductor.current.addRhythm(updateRhythm);
+      // conductor.current.addRhythm(rhythm3);
+      // conductor.current.addRhythm(rhythm4);
+      // conductor.current.addRhythm(rhythm5);
+      // conductor.current.addRhythm(rhythm6);
 
       updateRhythm.on('beatChange', (beat: number) => {
         setCurrentBeat(beat);
       });
+
+      // clean this up soon
+      updateRhythm.on('updatedBeats', (updatedBeats: number) => {
+        if (updatedBeats !== parseInt(beatCountRef.current.value)) {
+          beatCountRef.current =
+            beatCountData.find((b) => b.value === updatedBeats.toString()) ||
+            beatCountData[3];
+          const newTotalBeats: BeatState[] = new Array(
+            updatedBeats /
+              Subdivisions[
+                subdivisionRef.current.value as keyof typeof Subdivisions
+              ],
+          ).fill(1);
+
+          updateRhythm.resetState(newTotalBeats);
+
+          totalBeatsRef.current = newTotalBeats;
+          setTotalBeats(newTotalBeats);
+          setBeatCount(
+            beatCountData.find((b) => b.value === updatedBeats.toString()) ||
+              beatCountData[3],
+          );
+        }
+      });
     }
 
-    if (usePolyrhythm && !isRunning) {
-      console.log('using poly');
-
+    if (usePolyrhythm && conductor.current.numberOfRhythms !== 2) {
       const polyOsc = new Oscillator(conductor.current.audioCtx, polyFrequency);
 
       const polyRhythm = new Rhythm({
@@ -194,6 +276,23 @@ function App() {
 
       polyRhythm.on('beatChange', (beat: number): void => {
         setPolyBeat(beat);
+      });
+
+      polyRhythm.on('updatedBeats', (updatedBeats: number) => {
+        // update this, polySubdivision not up to date
+        const newTotalBeats: BeatState[] = new Array(
+          updatedBeats /
+            Subdivisions[
+              polySubdivisionRef.current.value as keyof typeof Subdivisions
+            ],
+        ).fill(1);
+
+        polyRhythm.resetState(newTotalBeats);
+        setTotalPolyBeats(newTotalBeats);
+        setPolyBeatCount(
+          beatCountData.find((b) => b.value === updatedBeats.toString()) ||
+            beatCountData[3],
+        );
       });
     }
 
@@ -230,7 +329,6 @@ function App() {
   }
 
   function updateSubdivision(value: string): void {
-    console.log('updating');
     const newSubdivision =
       subdivisionData.find((s) => s.value === value) || subdivisionData[0];
 
@@ -250,10 +348,10 @@ function App() {
     totalBeatsRef.current = newTotalBeats; // used in useEffect
     setTotalBeats(newTotalBeats); // updates UI
     setSubdivision(newSubdivision);
+    subdivisionRef.current = newSubdivision;
   }
 
   function updatePolySubdivision(value: string): void {
-    console.log('updating poly');
     const newSubdivision =
       subdivisionData.find((s) => s.value === value) || subdivisionData[0];
 
@@ -273,6 +371,7 @@ function App() {
     totalPolyBeatsRef.current = newTotalBeats; // used in useEffect
     setTotalPolyBeats(newTotalBeats); // updates UI
     setPolySubdivision(newSubdivision);
+    polySubdivisionRef.current = newSubdivision;
   }
 
   function updatefrequency(frequency: number): void {
@@ -293,40 +392,84 @@ function App() {
     setPolyFrequency(frequency);
   }
 
+  // UPDATE BEAT COUNT - BASE
   function updateBeatCount(value: string): void {
-    const newTotalBeats = new Array(
-      parseInt(value) /
-        Subdivisions[subdivision.value as keyof typeof Subdivisions],
-    ).fill(1);
+    const updatedBeatCount = parseInt(value);
+
+    // generate new BeatState
+    // const newTotalBeats: BeatState[] = new Array(
+    //   updatedBeatCount /
+    //     Subdivisions[subdivision.value as keyof typeof Subdivisions],
+    // ).fill(1);
 
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(0);
-      rhythm.resetState(newTotalBeats);
+      // reset rhythm's beat state
+      // rhythm.resetState(newTotalBeats);
+
+      conductor.current.updateBeats(updatedBeatCount);
+      if (!isRunning) {
+        const newTotalBeats: BeatState[] = new Array(
+          updatedBeatCount /
+            Subdivisions[subdivision.value as keyof typeof Subdivisions],
+        ).fill(1);
+        rhythm.resetState(newTotalBeats);
+
+        beatCountRef.current =
+          beatCountData.find((b) => b.value === value) || beatCountData[3];
+        totalBeatsRef.current = newTotalBeats;
+        setTotalBeats(newTotalBeats);
+        setBeatCount(
+          beatCountData.find((b) => b.value === value) || beatCountData[3],
+        );
+      }
+      // rhythm.updateBeats(updatedBeatCount);
     }
 
-    totalBeatsRef.current = newTotalBeats;
-    setTotalBeats(newTotalBeats);
-    setBeatCount(
-      beatCountData.find((b) => b.value === value) || beatCountData[3],
-    );
+    // beatCountRef.current =
+    //   beatCountData.find((b) => b.value === value) || beatCountData[3];
+    // totalBeatsRef.current = newTotalBeats;
+    // setTotalBeats(newTotalBeats);
+    // setBeatCount(
+    //   beatCountData.find((b) => b.value === value) || beatCountData[3],
+    // );
   }
 
   function updatePolyBeatCount(value: string): void {
-    const newTotalBeats = new Array(
-      parseInt(value) /
-        Subdivisions[polySubdivision.value as keyof typeof Subdivisions],
-    ).fill(1);
+    const updatedBeatCount = parseInt(value);
+
+    // const newTotalBeats = new Array(
+    //   parseInt(value) /
+    //     Subdivisions[polySubdivision.value as keyof typeof Subdivisions],
+    // ).fill(1);
 
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(1);
-      rhythm.resetState(newTotalBeats);
+      // rhythm.resetState(newTotalBeats);
+      // conductor.current.updateBeats(rhythm, updatedBeatCount);
+      rhythm.updateBeats(updatedBeatCount, isRunning, 'poly');
+      if (!isRunning) {
+        const newTotalBeats: BeatState[] = new Array(
+          updatedBeatCount /
+            Subdivisions[polySubdivision.value as keyof typeof Subdivisions],
+        ).fill(1);
+        rhythm.resetState(newTotalBeats);
+
+        // beatCountRef.current =
+        //   beatCountData.find((b) => b.value === value) || beatCountData[3];
+        // totalBeatsRef.current = newTotalBeats;
+        setTotalPolyBeats(newTotalBeats);
+        setPolyBeatCount(
+          beatCountData.find((b) => b.value === value) || beatCountData[3],
+        );
+      }
     }
 
-    totalPolyBeatsRef.current = newTotalBeats;
-    setTotalPolyBeats(newTotalBeats);
-    setPolyBeatCount(
-      beatCountData.find((b) => b.value === value) || beatCountData[3],
-    );
+    // totalPolyBeatsRef.current = newTotalBeats;
+    // setTotalPolyBeats(newTotalBeats);
+    // setPolyBeatCount(
+    //   beatCountData.find((b) => b.value === value) || beatCountData[3],
+    // );
   }
 
   function updateUsePolyrhythm(usePoly: boolean): void {
@@ -336,6 +479,7 @@ function App() {
     }
 
     if (!usePoly && isRunning && conductor.current) {
+      conductor.current.getRhythm(1).kill();
       conductor.current.removeRhythm(1);
       setPolyBeat(1);
     }
@@ -439,6 +583,8 @@ function App() {
           handlePolyBeatClick={handlePolyBeatClick}
           totalBeats={totalBeats}
           totalPolyBeats={totalPolyBeats}
+          lastBeatTime={lastBeatTimeRef.current}
+          audioCtx={conductor.current?.audioCtx}
         />
       </section>
       {/* <section className="spinner-container" style={{ display: 'none' }}>
