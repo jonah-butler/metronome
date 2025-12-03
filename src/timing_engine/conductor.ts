@@ -5,7 +5,7 @@ import { Rhythm } from './rhythm';
 export class Conductor extends EventEmitter {
   static LOOK_AHEAD = 0.1;
 
-  private isRunning = false;
+  isRunning = false;
   private rhythms: Rhythm[] = [];
 
   audioCtx: AudioContext;

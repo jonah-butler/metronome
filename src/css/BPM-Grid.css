@@ -37,6 +37,10 @@
   }
 }
 
+.grid-container.ghost .dot {
+  background-color: var(--muted-pink-purple);
+}
+
 .grid-container .dot {
   /* position: absolute;
   top: 47%;
@@ -107,6 +111,10 @@
   border-radius: 50%;
   border: 3px solid var(--light-black);
   z-index: 5;
+}
+
+.grid-container.small.ghost .dot {
+  background-color: var(--muted-light-purple);
 }
 
 .grid-container.small .dot {

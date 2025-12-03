@@ -19,6 +19,8 @@ interface DisplayProps {
   totalPolyBeats: BeatState[];
   subdivisionIcon: ReactNode;
   polySubdivisionIcon: ReactNode;
+  beatCountGhost: number | null;
+  polyBeatCountGhost: number | null;
   updateBPM: (value: number) => void;
   togglePlayback: () => void;
   handleBeatClick: (i: number) => void;
@@ -43,6 +45,8 @@ function Display({
   totalPolyBeats,
   subdivisionIcon,
   polySubdivisionIcon,
+  beatCountGhost,
+  polyBeatCountGhost,
 }: DisplayProps) {
   return (
     <div className="metronome">
@@ -54,6 +58,7 @@ function Display({
           subdivision={subdivision}
           totalBeats={totalBeats}
           handleBeatClick={(i: number) => handleBeatClick(i)}
+          beatCountGhost={beatCountGhost}
         />
 
         {/*  BPM Rotary Dial | Play/Pause | BPM Tap */}
@@ -75,6 +80,7 @@ function Display({
             smallVersion={true}
             subdivision={polySubdivision}
             totalBeats={totalPolyBeats}
+            beatCountGhost={polyBeatCountGhost}
             handleBeatClick={(i: number) => handlePolyBeatClick(i)}
           />
         )}
@@ -85,8 +91,6 @@ function Display({
           bpm={bpm}
           beats={beats}
           currentBeat={currentBeat}
-          // lastBeatTime={lastBeatTime}
-          // audioCtx={audioCtx}
         />
       </section>
     </div>
