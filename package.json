@@ -6,6 +6,7 @@
   "homepage": "https://github.com/jonah-butler/metronome",
   "scripts": {
     "dev": "vite",
+    "host": "npm run dev -- --host",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"

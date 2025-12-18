@@ -18,7 +18,9 @@ export default function MetronomeClockArm({
   useEffect(() => {
     if (!clockArmRef.current) return;
 
+    console.log('ok');
     if (!clockArmAnimation.current) {
+      console.log('animating');
       clockArmAnimation.current = clockArmRef.current.animate(
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
         {
@@ -28,10 +30,15 @@ export default function MetronomeClockArm({
           fill: 'both',
         },
       );
+
+      // preserve the animation timeline until animation is needed
+      clockArmAnimation.current.pause();
+      clockArmAnimation.current.currentTime = 0;
     }
 
     if (isRunning) {
-      clockArmAnimation.current.play();
+      // avoid jumpiness on IOS by playing on next tick
+      requestAnimationFrame(() => clockArmAnimation.current?.play());
     } else {
       resetClockArm();
     }

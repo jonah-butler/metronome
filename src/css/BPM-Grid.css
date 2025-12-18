@@ -21,6 +21,8 @@
   position: absolute;
   z-index: 3;
   top: 0;
+  will-change: transform;
+  /* transform: translateZ(0); */
 }
 
 .grid-container__clock-arm.running {
