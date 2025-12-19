@@ -273,7 +273,23 @@ export class Rhythm extends EventEmitter {
     changeType: 'base' | 'poly',
   ): void {
     if (!isRunning) {
-      this.beats = beats;
+      const updatedBeatCount = beats;
+
+      if (changeType === 'base') {
+        if (!this.isPolyrhythm) {
+          this.poly = updatedBeatCount;
+        }
+        this.beats = updatedBeatCount;
+
+        if (this.isPoly) {
+          this.emit('updatedBeats', this.poly);
+        } else {
+          this.emit('updatedBeats', this.beats);
+        }
+      } else if (changeType === 'poly') {
+        this.poly = updatedBeatCount;
+        this.emit('updatedBeats', this.poly);
+      }
       return;
     }
 

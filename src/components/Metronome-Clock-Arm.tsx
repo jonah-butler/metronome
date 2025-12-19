@@ -18,9 +18,7 @@ export default function MetronomeClockArm({
   useEffect(() => {
     if (!clockArmRef.current) return;
 
-    console.log('ok');
     if (!clockArmAnimation.current) {
-      console.log('animating');
       clockArmAnimation.current = clockArmRef.current.animate(
         [{ transform: 'rotate(0deg)' }, { transform: 'rotate(360deg)' }],
         {

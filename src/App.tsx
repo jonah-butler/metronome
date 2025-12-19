@@ -149,7 +149,10 @@ function App() {
       conductor.current.on('updateBPM', updateBPM);
     }
 
-    if (!conductor.current.isRunning) {
+    if (
+      !conductor.current.isRunning &&
+      conductor.current.numberOfRhythms === 0
+    ) {
       conductor.current.removeRhythms();
 
       // base rhythm event callbacks
