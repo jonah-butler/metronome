@@ -408,10 +408,10 @@ function App() {
       setSelectedSetting('metronome');
     }
 
-    if (!usePoly && isRunning && conductor.current) {
+    if (!usePoly && conductor.current) {
       conductor.current.getRhythm(1).kill();
       conductor.current.removeRhythm(1);
-      setPolyBeat(1);
+      // setPolyBeat(1);
     }
   }
 
