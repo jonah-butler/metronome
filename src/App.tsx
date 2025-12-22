@@ -1,8 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import './App.css';
+import BeatGridSettings from './assets/icons/beat-grid-settings.svg?react';
+import SoundSettings from './assets/icons/sound-settings.svg?react';
+import TrainerSettings from './assets/icons/trainer-settings.svg?react';
 import Display from './components/Display';
 import Dropdown, { type DropdownOptions } from './components/Dropdown';
 import Slider from './components/Slider';
+import { Tabs } from './components/Tabs/Tabs';
 import Toggle from './components/Toggle';
 import { beatCountData, subdivisionData } from './data';
 import {
@@ -54,7 +58,13 @@ function App() {
    * Metronome State
    * +++++++++++++++++
    */
-  const [frequency, setFrequency] = useState(defaultFrequency);
+  const [frequencyData, setFrequencyData] = useState({
+    frequency: defaultFrequency,
+    beatOneOffset: 200,
+    subdividedOffset: -50,
+    gain: 0.5,
+  });
+  // const [frequency, setFrequency] = useState(defaultFrequency); // retire
 
   const beatCountRef = useRef(defaultBeatCount);
   const [beatCount, setBeatCount] = useState<DropdownOptions>(defaultBeatCount);
@@ -76,7 +86,13 @@ function App() {
    * Polyrhythm State
    * +++++++++++++++++
    */
-  const [polyFrequency, setPolyFrequency] = useState(550);
+  const [polyFrequencyData, setPolyFrequencyData] = useState({
+    frequency: 550,
+    beatOneOffset: 200,
+    subdividedOffset: -50,
+    gain: 0.5,
+  });
+  // const [polyFrequency, setPolyFrequency] = useState(550); // retire
   const [polyBeatCount, setPolyBeatCount] = useState<DropdownOptions>(
     beatCountData[2],
   );
@@ -100,6 +116,8 @@ function App() {
    */
   const [usePolyrhythm, setUsePolyrhythm] = useState(false);
   const [selectedSetting, setSelectedSetting] = useState('metronome');
+  const [tab, setTab] = useState(0);
+  const [polyTab, setPolyTab] = useState(0);
 
   /**
    * ++++++++++++++++
@@ -181,7 +199,13 @@ function App() {
       const baseSubdivision = getSubdivision(subdivision.value);
       const baseBeatCount = parseInt(beatCount.value);
       const baseBeatState = totalBeatsRef.current;
-      const baseSound = new Oscillator(conductor.current.audioCtx, frequency);
+      const baseSound = new Oscillator(
+        conductor.current.audioCtx,
+        frequencyData.frequency,
+        frequencyData.beatOneOffset,
+        frequencyData.subdividedOffset,
+        frequencyData.gain,
+      );
 
       const baseRhythm = new Rhythm({
         subdivision: baseSubdivision,
@@ -222,7 +246,10 @@ function App() {
 
       const polySound = new Oscillator(
         conductor.current.audioCtx,
-        polyFrequency,
+        polyFrequencyData.frequency,
+        polyFrequencyData.beatOneOffset,
+        polyFrequencyData.subdividedOffset,
+        polyFrequencyData.gain,
       );
       const polySub = getSubdivision(polySubdivision.value);
       const polyState = totalPolyBeatsRef.current;
@@ -251,10 +278,10 @@ function App() {
   }, [
     subdivision,
     beatCount,
-    frequency,
+    frequencyData,
     usePolyrhythm,
     polyBeatCount,
-    polyFrequency,
+    polyFrequencyData,
     polySubdivision,
   ]);
 
@@ -314,22 +341,54 @@ function App() {
     polySubdivisionRef.current = newSubdivision;
   }
 
-  function updatefrequency(frequency: number): void {
+  // retire
+  // function updatefrequency(frequency: number): void {
+  //   if (!conductor.current) return;
+
+  //   const baseRhythm = conductor.current.getRhythm(0);
+  //   baseRhythm.updateFrequency(frequency);
+
+  //   setFrequency(frequency);
+  // }
+
+  // retire
+  // function updatePolyFrequency(frequency: number): void {
+  //   if (!conductor.current) return;
+
+  //   const baseRhythm = conductor.current.getRhythm(1);
+  //   baseRhythm.updateFrequency(frequency);
+
+  //   setPolyFrequency(frequency);
+  // }
+
+  function updateFrequencyData(
+    value: number,
+    key: keyof typeof polyFrequencyData,
+  ): void {
     if (!conductor.current) return;
 
     const baseRhythm = conductor.current.getRhythm(0);
-    baseRhythm.updateFrequency(frequency);
 
-    setFrequency(frequency);
+    setFrequencyData((prev) => {
+      const next = { ...prev, [key]: value };
+      baseRhythm.updateFrequencyData(next);
+      return next;
+    });
   }
 
-  function updatePolyFrequency(frequency: number): void {
+  function updatePolyFrequencyData(
+    value: number,
+    key: keyof typeof polyFrequencyData,
+  ): void {
     if (!conductor.current) return;
 
     const baseRhythm = conductor.current.getRhythm(1);
-    baseRhythm.updateFrequency(frequency);
 
-    setPolyFrequency(frequency);
+    setPolyFrequencyData((prev) => {
+      const next = { ...prev, [key]: value };
+      baseRhythm.updateFrequencyData(next);
+      return next;
+    });
   }
 
   /**
@@ -554,74 +613,146 @@ function App() {
 
       {/* Metronome Settings */}
       {selectedSetting === 'metronome' && (
-        <div className="settings-row">
-          {/* Subdivision */}
-          <section>
-            <Dropdown
-              label="Subdivision"
-              data={subdivisionData}
-              currentValue={subdivision}
-              onChange={updateSubdivision}
-            />
-          </section>
+        <Tabs index={tab} updateTab={setTab}>
+          <Tabs.Tab label={<BeatGridSettings />}>
+            <div>
+              {/* Subdivision */}
+              <Dropdown
+                label="Subdivision"
+                data={subdivisionData}
+                currentValue={subdivision}
+                onChange={updateSubdivision}
+              />
 
-          {/* Beat Count */}
-          <section>
-            <Dropdown
-              label="Beat Count"
-              data={beatCountData}
-              currentValue={beatCountGhost ?? beatCount}
-              onChange={updateBeatCount}
-            />
-          </section>
-
-          {/* Frequency Slider */}
-          <section>
-            <Slider
-              min={100}
-              max={1500}
-              step={10}
-              currentValue={frequency}
-              onChange={updatefrequency}
-            />
-          </section>
-        </div>
+              {/* Beat Count */}
+              <Dropdown
+                label="Beat Count"
+                data={beatCountData}
+                currentValue={beatCountGhost ?? beatCount}
+                onChange={updateBeatCount}
+              />
+            </div>
+          </Tabs.Tab>
+          <Tabs.Tab label={<SoundSettings />}>
+            {/* Frequency Sliders */}
+            <div>
+              <Slider
+                min={100}
+                max={1500}
+                step={10}
+                label="Core Frequency"
+                currentValue={frequencyData.frequency}
+                onChange={(value: number) =>
+                  updateFrequencyData(value, 'frequency')
+                }
+              />
+              <Slider
+                min={-100}
+                max={100}
+                step={1}
+                label="Beat One Offset"
+                currentValue={frequencyData.beatOneOffset}
+                onChange={(value: number) =>
+                  updateFrequencyData(value, 'beatOneOffset')
+                }
+              />
+              <Slider
+                min={-50}
+                max={50}
+                step={1}
+                label="Subdivided Offset"
+                currentValue={frequencyData.subdividedOffset}
+                onChange={(value: number) =>
+                  updateFrequencyData(value, 'subdividedOffset')
+                }
+              />
+              <Slider
+                min={0.1}
+                max={1}
+                step={0.1}
+                label="Gain"
+                currentValue={frequencyData.gain}
+                onChange={(value: number) => updateFrequencyData(value, 'gain')}
+              />
+            </div>
+          </Tabs.Tab>
+          <Tabs.Tab label={<TrainerSettings />}>
+            <div>🗓️ training tools coming soon</div>
+          </Tabs.Tab>
+        </Tabs>
       )}
 
       {/* Polyrhythm Settings */}
       {selectedSetting === 'polyrhythm' && usePolyrhythm && (
-        <div className="settings-row">
-          {/* Subdivision */}
-          <section>
-            <Dropdown
-              label="Subdivision"
-              data={subdivisionData}
-              currentValue={polySubdivision}
-              onChange={updatePolySubdivision}
-            />
-          </section>
+        <Tabs index={polyTab} updateTab={setPolyTab}>
+          <Tabs.Tab label={<BeatGridSettings />}>
+            <div>
+              {/* Subdivision */}
+              <Dropdown
+                label="Subdivision"
+                data={subdivisionData}
+                currentValue={polySubdivision}
+                onChange={updatePolySubdivision}
+              />
 
-          {/* Beat Count */}
-          <section>
-            <Dropdown
-              label="Poly Beat"
-              data={beatCountData}
-              currentValue={polyBeatCountGhost ?? polyBeatCount}
-              onChange={updatePolyBeatCount}
-            />
-          </section>
-
-          {/* Frequency Slider */}
-          <section>
-            <Slider
-              min={100}
-              max={1500}
-              step={10}
-              currentValue={polyFrequency}
-              onChange={updatePolyFrequency}
-            />
-          </section>
-        </div>
+              {/* Beat Count */}
+              <Dropdown
+                label="Poly Beat"
+                data={beatCountData}
+                currentValue={polyBeatCountGhost ?? polyBeatCount}
+                onChange={updatePolyBeatCount}
+              />
+            </div>
+          </Tabs.Tab>
+          <Tabs.Tab label={<SoundSettings />}>
+            {/* Frequency Sliders */}
+            <div>
+              <Slider
+                min={200}
+                max={1600}
+                step={10}
+                label="Core Frequency"
+                currentValue={polyFrequencyData.frequency}
+                onChange={(value: number) =>
+                  updatePolyFrequencyData(value, 'frequency')
+                }
+              />
+              <Slider
+                min={-200}
+                max={200}
+                step={5}
+                label="Beat One Offset"
+                currentValue={polyFrequencyData.beatOneOffset}
+                onChange={(value: number) =>
+                  updatePolyFrequencyData(value, 'beatOneOffset')
+                }
+              />
+              <Slider
+                min={-100}
+                max={100}
+                step={5}
+                label="Subdivided Offset"
+                currentValue={polyFrequencyData.subdividedOffset}
+                onChange={(value: number) =>
+                  updatePolyFrequencyData(value, 'subdividedOffset')
+                }
+              />
+              <Slider
+                min={0.1}
+                max={1}
+                step={0.1}
+                label="Gain"
+                currentValue={polyFrequencyData.gain}
+                onChange={(value: number) =>
+                  updatePolyFrequencyData(value, 'gain')
+                }
+              />
+            </div>
+          </Tabs.Tab>
+          <Tabs.Tab label={<TrainerSettings />}>
+            <div>🗓️ training tools coming soon</div>
+          </Tabs.Tab>
+        </Tabs>
       )}
 
       {!isMobileUserAgent() && (

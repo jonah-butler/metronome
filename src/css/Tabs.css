@@ -1,0 +1,56 @@
+.tabs {
+  width: 390px;
+}
+
+.tab-list {
+  display: flex;
+  justify-content: space-between;
+}
+
+.tab-panel {
+  padding: 1rem;
+  min-height: 120px;
+}
+
+.tab-panel > div {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+}
+
+.tab-button {
+  background: black;
+  margin-right: 10px;
+  border: none;
+}
+button.tab-button.active {
+  outline: none;
+  border-bottom: 3px solid #f821ad;
+  border-radius: 0;
+
+  svg {
+    path {
+      fill: #f821ad;
+      stroke: #f821ad;
+    }
+  }
+}
+
+button.tab-button:hover {
+  outline: none;
+  border-top: transparent;
+  border-left: transparent;
+  border-right: transparent;
+  border-bottom: 3px solid #f821ad;
+  border-radius: 0;
+}
+
+.tab-button > svg {
+  max-height: 50px;
+  width: auto;
+
+  path {
+    fill: white;
+    stroke: white;
+  }
+}

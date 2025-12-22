@@ -1,5 +1,5 @@
 import { EventEmitter } from 'events';
-import { type NotePlayer } from './oscillator.types';
+import { type FrequencyData, type NotePlayer } from './oscillator.types';
 import { type BeatState, type RhythmParams } from './rhythm.types';
 
 export class Rhythm extends EventEmitter {
@@ -307,5 +307,9 @@ export class Rhythm extends EventEmitter {
 
   updateFrequency(frequency: number): void {
     this.sound.updateFrequency(frequency);
+  }
+
+  updateFrequencyData(data: FrequencyData): void {
+    this.sound.updateFrequencyData(data);
   }
 }

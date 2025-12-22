@@ -7,6 +7,11 @@
   font-weight: 600;
 }
 
+.dropdown {
+  width: fit-content;
+  text-align: left;
+}
+
 .dropdown-label-container span {
   max-height: 20px;
   max-width: 15px;

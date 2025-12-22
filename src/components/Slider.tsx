@@ -5,13 +5,14 @@ interface RangeProps {
   max: number;
   currentValue: number;
   step: number;
+  label: string;
   onChange: (value: number) => void;
 }
 
-function Slider({ min, max, step, currentValue, onChange }: RangeProps) {
+function Slider({ min, max, step, currentValue, onChange, label }: RangeProps) {
   return (
     <div className="range-container">
-      <div>Frequency</div>
+      <div>{label}</div>
       <section className="range">
         <input
           onChange={(e) => onChange(Number(e.target.value))}
