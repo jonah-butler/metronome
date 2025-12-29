@@ -12,6 +12,14 @@
   text-align: left;
 }
 
+.dropdown.small {
+}
+
+.dropdown > select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
 .dropdown-label-container span {
   max-height: 20px;
   max-width: 15px;
@@ -23,7 +31,6 @@ select,
 }
 
 select {
-  min-width: 100px;
   border: none;
   background: rgba(36, 36, 36, 0.5);
   padding: 10px 15px;
@@ -34,6 +41,18 @@ select {
   height: 45px;
   color: white;
   font-size: 14px;
+}
+
+select.small {
+  min-width: 50px;
+  height: 40px;
+  padding: 10px;
+}
+select.small::picker-icon {
+  margin-left: 0rem;
+}
+select.medium {
+  min-width: 100px;
 }
 
 select:hover,

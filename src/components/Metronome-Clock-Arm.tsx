@@ -36,7 +36,9 @@ export default function MetronomeClockArm({
 
     if (isRunning) {
       // avoid jumpiness on IOS by playing on next tick
-      requestAnimationFrame(() => clockArmAnimation.current?.play());
+      clockArmAnimation.current?.play();
+      // figure out how to add this back in for mobile...
+      // requestAnimationFrame(() => clockArmAnimation.current?.play());
     } else {
       resetClockArm();
     }

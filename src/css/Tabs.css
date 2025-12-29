@@ -1,5 +1,13 @@
 .tabs {
-  width: 390px;
+  max-width: 390px;
+  border-radius: 0.75rem;
+  border: 1px solid #2e2e2e;
+  background-color: var(--medium-black);
+  margin-bottom: 1rem;
+}
+
+.tabs__inner-container {
+  padding: 1rem;
 }
 
 .tab-list {
@@ -19,9 +27,9 @@
 }
 
 .tab-button {
-  background: black;
   margin-right: 10px;
   border: none;
+  flex: 1;
 }
 button.tab-button.active {
   outline: none;
@@ -46,7 +54,7 @@ button.tab-button:hover {
 }
 
 .tab-button > svg {
-  max-height: 50px;
+  max-height: 30px;
   width: auto;
 
   path {

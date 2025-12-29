@@ -67,7 +67,7 @@ svg.note-svg path {
   display: flex;
   justify-content: center;
   gap: 2rem;
-  margin-bottom: 2rem;
+  margin: 1rem 0 0.5rem 0;
 }
 
 .settings-row {
@@ -93,6 +93,18 @@ button.inactive {
   color: #666;
 }
 
+button.wide {
+  padding: 1rem 6rem;
+}
+
+button.outline {
+  outline: 2px solid #f821ad;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
+
 .polyrhythm-header-container {
   display: flex;
   justify-content: center;
@@ -113,4 +125,83 @@ button.inactive {
   top: -45px;
   left: 50%;
   transform: translate(-50%, -50%);
+}
+
+/* 
+=================
+| Helpers
+=================
+*/
+.flex {
+  display: flex;
+}
+
+.flex-col {
+  flex-direction: column;
+}
+
+.f-gap1 {
+  gap: 0.25rem;
+}
+
+.f-gap2 {
+  gap: 0.5rem;
+}
+
+.f-gap3 {
+  gap: 0.75rem;
+}
+
+.f-gap4 {
+  gap: 1rem;
+}
+
+.justify-center {
+  justify-content: center;
+}
+
+.space-between {
+  justify-content: space-between;
+}
+
+.width-100 {
+  width: 100%;
+}
+
+.flex-dir-col {
+  flex-direction: column;
+}
+
+.align-center {
+  align-items: center;
+}
+
+.font-weight-bold {
+  font-weight: bold;
+}
+
+.text-light {
+  font-size: 12px;
+  opacity: 0.7;
+}
+
+.font-size-12 {
+  font-size: 12px;
+}
+
+.text-left {
+  text-align: left;
+}
+
+.ml-2 {
+  margin-left: 0.5rem;
+}
+
+.mr-2 {
+  margin-right: 0.5rem;
+}
+
+.indented {
+  border-left: 2px solid var(--pink-purple);
+  padding-left: 1rem;
 }

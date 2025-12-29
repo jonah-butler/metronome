@@ -11,6 +11,7 @@
 
   /* color */
   --light-black: #242424;
+  --medium-black: #090909;
   --pink-purple: #f821ad;
   --dark-gray: #393439ff;
   --light-purple: #9045e6ff;
@@ -23,7 +24,7 @@ body {
   display: flex;
   margin: 0px;
   align-items: center;
-  height: 100vh;
+  /* height: 100vh; */
 }
 
 button {

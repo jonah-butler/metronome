@@ -8,17 +8,28 @@ export type DropdownOptions = {
 
 interface DropdownProps {
   data: DropdownOptions[];
-  label: string;
+  label?: string;
   currentValue: DropdownOptions;
+  disabled?: boolean;
+  variant?: 'small' | 'medium' | 'large';
   onChange: (value: string) => void;
 }
 
-function Dropdown({ data, label, currentValue, onChange }: DropdownProps) {
+function Dropdown({
+  data,
+  label,
+  currentValue,
+  onChange,
+  disabled = false,
+  variant = 'medium',
+}: DropdownProps) {
   return (
     <div className="dropdown">
       <div className="dropdown__label-container">{label}</div>
       <div></div>
       <select
+        className={variant}
+        disabled={disabled}
         value={currentValue.value}
         onChange={(e) => onChange(e.target.value)}
       >

@@ -2,8 +2,7 @@
   text-align: left;
 
   & .range {
-    min-height: 33px;
-    background: rgba(36, 36, 36, 0.5);
+    min-height: 15px;
     padding: 0.3rem;
     display: flex;
     align-items: center;
@@ -18,4 +17,20 @@
     border: none;
     accent-color: #f821ad;
   }
+}
+
+input[type='range']::-webkit-slider-runnable-track {
+  height: 5px;
+  background-color: var(--pink-purple);
+  border-radius: 999px;
+}
+
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 15px;
+  height: 15px;
+  background: #d31eed;
+  border-radius: 50%;
+  margin-top: -6px;
+  cursor: pointer;
 }

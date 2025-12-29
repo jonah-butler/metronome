@@ -1,0 +1,44 @@
+.drawer__container {
+  overflow: hidden;
+  height: 0;
+  position: relative;
+}
+
+.drawer__container {
+  position: static;
+}
+
+.drawer__close {
+  position: absolute;
+  top: 0;
+  right: 10px;
+  color: white;
+  font-size: 25px;
+  cursor: pointer;
+}
+
+.drawer {
+  height: 0px;
+  overflow: hidden;
+  width: 100%;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0; /* key: stuck to the bottom of .panel */
+  transform: translateY(100%); /* start hidden below container */
+  transition: transform 250ms ease;
+  will-change: transform;
+  background-color: #121212;
+  /* outline: 1px solid #f821ad; */
+  border-radius: 5px;
+  z-index: 100;
+}
+
+.drawer.open {
+  transform: translateY(0); /* slide up into view */
+}
+
+.drawer__contents {
+  padding: 2rem 1rem;
+  text-align: left;
+}

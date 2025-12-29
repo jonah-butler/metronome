@@ -34,21 +34,23 @@ export function Tabs({ index, children, updateTab }: TabsProps) {
 
   return (
     <div className="tabs">
-      {/* Tab Buttons */}
-      <div className="tab-list">
-        {tabs.map((tab, index) => (
-          <button
-            key={index}
-            className={`tab-button ${index === activeIndex ? 'active' : ''}`}
-            onClick={() => handleTabUpdate(index)}
-          >
-            {tab.props.label}
-          </button>
-        ))}
-      </div>
+      <div className="tabs__inner-container">
+        {/* Tab Buttons */}
+        <div className="tab-list">
+          {tabs.map((tab, index) => (
+            <button
+              key={index}
+              className={`tab-button ${index === activeIndex ? 'active' : ''}`}
+              onClick={() => handleTabUpdate(index)}
+            >
+              {tab.props.label}
+            </button>
+          ))}
+        </div>
 
-      {/* Active Tab Content (slot-like) */}
-      <div className="tab-panel">{activeTab?.props.children}</div>
+        {/* Active Tab Content (slot-like) */}
+        <div className="tab-panel">{activeTab?.props.children}</div>
+      </div>
     </div>
   );
 }
