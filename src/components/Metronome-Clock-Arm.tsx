@@ -12,12 +12,12 @@ export default function MetronomeClockArm({
   bpm,
   beats,
 }: MetronomeClockArmProps) {
-  function isMobileUserAgent() {
-    const userAgent = navigator.userAgent;
-    return /android|ipad|iphone|ipod|blackberry|webos|iemobile|mobile/i.test(
-      userAgent,
-    );
-  }
+  // function isMobileUserAgent() {
+  //   const userAgent = navigator.userAgent;
+  //   return /android|ipad|iphone|ipod|blackberry|webos|iemobile|mobile/i.test(
+  //     userAgent,
+  //   );
+  // }
   const clockArmRef = useRef<HTMLElement | null>(null);
   const clockArmAnimation = useRef<Animation | null>(null);
 
@@ -42,11 +42,12 @@ export default function MetronomeClockArm({
 
     if (isRunning) {
       // avoid jumpiness on IOS by playing on next tick
-      if (isMobileUserAgent()) {
-        requestAnimationFrame(() => clockArmAnimation.current?.play());
-      } else {
-        clockArmAnimation.current?.play();
-      }
+      requestAnimationFrame(() => clockArmAnimation.current?.play());
+      // if (isMobileUserAgent()) {
+      //   requestAnimationFrame(() => clockArmAnimation.current?.play());
+      // } else {
+      //   clockArmAnimation.current?.play();
+      // }
     } else {
       resetClockArm();
     }
