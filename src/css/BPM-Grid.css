@@ -131,13 +131,6 @@
 }
 
 .grid-container.small .dot.subdivision {
-  /* width: 10px;
-  height: 10px;
-  background-color: var(--light-purple);
-  left: 49%;
-  top: 49%;
-  transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
-    translate(209px) rotate(calc(-360deg / var(--beats) * var(--i))); */
   width: 10px;
   height: 10px;
   background-color: var(--light-purple);
@@ -145,6 +138,12 @@
   top: 49%;
   transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
     translate(177px) rotate(calc(-360deg / var(--beats) * var(--i)));
+}
+
+.grid-container.small.ghost .dot.subdivision {
+  left: 47.8% !important;
+  background-color: transparent !important;
+  top: 48% !important;
 }
 
 /*
@@ -166,6 +165,11 @@ for mobile
       translate(160px) rotate(calc(-360deg / var(--beats) * var(--i)));
   }
 
+  .grid-container.ghost .dot {
+    left: 44.7% !important;
+    top: 45.7% !important;
+  }
+
   .grid-container .dot.subdivision {
     width: 10px;
     height: 10px;
@@ -176,9 +180,24 @@ for mobile
       translate(162px) rotate(calc(-360deg / var(--beats) * var(--i)));
   }
 
+  .grid-container.ghost > .dot.subdivision {
+    left: 46.7% !important;
+    top: 46.7% !important;
+  }
+
+  .grid-container.small.ghost .dot.subdivsion {
+    left: 46.5% !important;
+    top: 46.5% !important;
+  }
+
   .grid-container.small {
     width: 270px !important;
     height: 270px !important;
+  }
+
+  .grid-container.small.ghost div.dot:not(.subdivision) {
+    left: 45.4% !important;
+    top: 46.5% !important;
   }
 
   .grid-container.small > .dot {
@@ -193,6 +212,11 @@ for mobile
     top: 48%;
     transform: rotate(calc(360deg / var(--beats) * var(--i) - 90deg))
       translate(137px) rotate(calc(-360deg / var(--beats) * var(--i)));
+  }
+
+  .grid-container.small.ghost .dot.subdivision {
+    left: 46.5% !important;
+    top: 46.5% !important;
   }
 
   .bpm-spinner__rotary {
