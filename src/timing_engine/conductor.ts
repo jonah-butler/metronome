@@ -34,9 +34,6 @@ export class Conductor extends EventEmitter {
     if (!this.isRunning) return;
 
     for (const rhythm of this.rhythms) {
-      if (rhythm.isPoly) {
-        // console.log('has poly rhythm');
-      }
       if (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
         rhythm.play();
         rhythm.advance(this.bpm, this.currentTime);

@@ -175,7 +175,6 @@ function App() {
 
       // base rhythm event callbacks
       const updateBeatChange = (beat: number) => {
-        console.log('beat change: ', beat);
         setCurrentBeat(beat);
       };
       const updateTotalBeatChange = (
@@ -230,7 +229,9 @@ function App() {
 
     if (usePolyrhythm && conductor.current.numberOfRhythms !== 2) {
       // poly rhythm event callbacks
-      const updateBeatChange = (beat: number) => setPolyBeat(beat);
+      const updateBeatChange = (beat: number) => {
+        setPolyBeat(beat);
+      };
       const updateTotalBeatChange = (
         totalBeats: number,
       ): BeatState[] | null => {
@@ -267,7 +268,17 @@ function App() {
         state: polyState,
       });
 
+      // handle new rhythms when base rhythm
+      // has a pending beat change so rhythms
+      // are synced on beat 1
+      const pendingBeatChange =
+        conductor.current.getRhythm(0).pendingBeatChange;
+
       conductor.current.addRhythm(polyRhythm);
+
+      if (pendingBeatChange) {
+        polyRhythm.updateBeats(pendingBeatChange, isRunningRef.current, 'base');
+      }
 
       polyRhythm.on('beatChange', updateBeatChange);
 
@@ -343,26 +354,6 @@ function App() {
     setPolySubdivision(newSubdivision);
     polySubdivisionRef.current = newSubdivision;
   }
-
-  // retire
-  // function updatefrequency(frequency: number): void {
-  //   if (!conductor.current) return;
-
-  //   const baseRhythm = conductor.current.getRhythm(0);
-  //   baseRhythm.updateFrequency(frequency);
-
-  //   setFrequency(frequency);
-  // }
-
-  // retire
-  // function updatePolyFrequency(frequency: number): void {
-  //   if (!conductor.current) return;
-
-  //   const baseRhythm = conductor.current.getRhythm(1);
-  //   baseRhythm.updateFrequency(frequency);
-
-  //   setPolyFrequency(frequency);
-  // }
 
   function updateFrequencyData(
     value: number,
