@@ -1,6 +1,4 @@
 .grid-container {
-  /* --width-lg: 390px;
-  --height-lg: 390px; */
   display: flex;
   justify-content: center;
   width: var(--width-lg);
@@ -153,7 +151,7 @@ for mobile
 ==============
 */
 
-@media (max-width: 563px) {
+@media (max-width: 1500px) {
   .grid-container {
     width: 320px !important;
     height: 320px !important;

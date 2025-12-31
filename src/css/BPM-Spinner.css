@@ -180,7 +180,7 @@
   transform: translate(-50%, -50%);
 }
 
-@media (max-width: 563px) {
+@media (max-width: 1500px) {
   .note-container {
     top: 42px;
 

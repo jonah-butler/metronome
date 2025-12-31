@@ -17,7 +17,7 @@
   }
 }
 
-@media (max-width: 563px) {
+@media (max-width: 1500px) {
   .metronome {
     width: var(--width-sm) !important;
     height: var(--height-sm) !important;

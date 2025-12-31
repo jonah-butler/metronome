@@ -18,6 +18,7 @@
   --white: #fff;
   --muted-pink-purple: #c21c8884;
   --muted-light-purple: #7233bb93;
+  --max-width-breakpoint: 1500px;
 }
 
 body {
@@ -27,7 +28,7 @@ body {
   height: 100vh;
 }
 
-@media (max-width: 563px) {
+@media (max-width: 1500px) {
   body {
     height: auto !important;
   }
