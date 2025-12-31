@@ -12,7 +12,8 @@
   text-align: left;
 }
 
-.dropdown.small {
+.dropdown.full {
+  width: 100%;
 }
 
 .dropdown > select:disabled {
@@ -48,11 +49,17 @@ select.small {
   height: 40px;
   padding: 10px;
 }
+
 select.small::picker-icon {
   margin-left: 0rem;
 }
+
 select.medium {
   min-width: 100px;
+}
+
+select.full {
+  width: 100%;
 }
 
 select:hover,

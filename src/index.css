@@ -24,7 +24,13 @@ body {
   display: flex;
   margin: 0px;
   align-items: center;
-  /* height: 100vh; */
+  height: 100vh;
+}
+
+@media (max-width: 563px) {
+  body {
+    height: auto !important;
+  }
 }
 
 button {

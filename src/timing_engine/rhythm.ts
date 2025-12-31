@@ -2,13 +2,29 @@ import { EventEmitter } from 'events';
 import { type FrequencyData, type NotePlayer } from './oscillator.types';
 import { type BeatState, type RhythmParams } from './rhythm.types';
 
+type BeatChanges = {
+  hasUpdate: boolean;
+  poly: {
+    beats: number | null;
+  };
+  base: {
+    beats: number | null;
+  };
+};
+
 export class Rhythm extends EventEmitter {
   killed = true;
   step: number = 0;
   activeOscillators: OscillatorNode[] = [];
   pendingSubdivision: number | null = null;
   pendingBeatChange: number | null = null;
+  pendingPolyBeatChange: number | null = null;
   pendingBeatChangeType: 'poly' | 'base' | null = null;
+  pendingBeatChanges: BeatChanges = {
+    hasUpdate: false,
+    poly: { beats: null },
+    base: { beats: null },
+  };
   private isPolyrhythm: boolean;
 
   poly: number; // optional poly beats defaults to [beats] value if undefined
@@ -204,26 +220,8 @@ export class Rhythm extends EventEmitter {
   play(): void {
     const tempBeat = this.beatTrack;
 
-    if (this.pendingBeatChange && tempBeat === 1) {
-      const pendingBeat = this.pendingBeatChange;
-
-      this.pendingBeatChange = null;
-      if (this.pendingBeatChangeType === 'base') {
-        if (!this.isPolyrhythm) {
-          this.poly = pendingBeat;
-        }
-
-        this.beats = pendingBeat;
-
-        if (this.isPoly) {
-          this.emit('updatedBeats', this.poly);
-        } else {
-          this.emit('updatedBeats', this.beats);
-        }
-      } else if (this.pendingBeatChangeType === 'poly') {
-        this.poly = pendingBeat;
-        this.emit('updatedBeats', pendingBeat);
-      }
+    if (this.pendingBeatChanges.hasUpdate && tempBeat === 1) {
+      this.handleBeatChange();
     }
 
     if (this.state[this.currentBeat - 1]) {
@@ -267,34 +265,51 @@ export class Rhythm extends EventEmitter {
     this.state[index] = state;
   }
 
-  updateBeats(
-    beats: number,
-    isRunning: boolean,
-    changeType: 'base' | 'poly',
-  ): void {
-    if (!isRunning) {
-      const updatedBeatCount = beats;
+  handleBeatChange(): void {
+    const pendingBeat = this.pendingBeatChanges.base.beats;
+    const pendingPolyBeat = this.pendingBeatChanges.poly.beats;
 
-      if (changeType === 'base') {
-        if (!this.isPolyrhythm) {
-          this.poly = updatedBeatCount;
-        }
-        this.beats = updatedBeatCount;
-
-        if (this.isPoly) {
-          this.emit('updatedBeats', this.poly);
-        } else {
-          this.emit('updatedBeats', this.beats);
-        }
-      } else if (changeType === 'poly') {
-        this.poly = updatedBeatCount;
-        this.emit('updatedBeats', this.poly);
+    if (pendingBeat) {
+      // base has matching beat counts
+      if (!this.isPolyrhythm) {
+        this.poly = pendingPolyBeat || pendingBeat;
       }
-      return;
+
+      this.beats = pendingBeat;
+
+      if (this.isPoly) {
+        this.emit('updatedBeats', this.poly);
+      } else {
+        this.emit('updatedBeats', this.beats);
+      }
     }
 
-    this.pendingBeatChangeType = changeType;
-    this.pendingBeatChange = beats;
+    if (pendingPolyBeat) {
+      this.poly = pendingPolyBeat;
+      this.emit('updatedBeats', this.poly);
+    }
+
+    // reset defaults
+    this.pendingBeatChanges.hasUpdate = false;
+    this.pendingBeatChanges.base.beats = null;
+    this.pendingBeatChanges.poly.beats = null;
+  }
+
+  updateBeats(
+    beats: number | null,
+    polyBeats: number | null,
+    isRunning: boolean,
+  ): void {
+    this.pendingBeatChanges.hasUpdate = true;
+
+    this.pendingBeatChanges.base.beats =
+      beats ?? this.pendingBeatChanges.base.beats;
+    this.pendingBeatChanges.poly.beats =
+      polyBeats ?? this.pendingBeatChanges.poly.beats;
+
+    if (!isRunning) {
+      this.handleBeatChange();
+    }
   }
 
   resetState(state: BeatState[]): void {

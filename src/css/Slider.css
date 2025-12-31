@@ -1,5 +1,6 @@
 .range-container {
   text-align: left;
+  width: 100%;
 
   & .range {
     min-height: 15px;

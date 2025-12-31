@@ -59,8 +59,8 @@ function App() {
    */
   const [frequencyData, setFrequencyData] = useState({
     frequency: defaultFrequency,
-    beatOneOffset: 200,
-    subdividedOffset: -50,
+    beatOneOffset: 3,
+    subdividedOffset: -3,
     gain: 0.5,
   });
   // const [frequency, setFrequency] = useState(defaultFrequency); // retire
@@ -87,8 +87,8 @@ function App() {
    */
   const [polyFrequencyData, setPolyFrequencyData] = useState({
     frequency: 550,
-    beatOneOffset: 200,
-    subdividedOffset: -50,
+    beatOneOffset: 3,
+    subdividedOffset: -3,
     gain: 0.5,
   });
   // const [polyFrequency, setPolyFrequency] = useState(550); // retire
@@ -216,7 +216,17 @@ function App() {
         sound: baseSound,
       });
 
+      // // handle new rhythms when poly rhythm
+      // // has a pending beat change so rhythms
+      // // are synced on beat 1
+      // const pendingBeatChange =
+      //   conductor.current.getRhythm(1)?.pendingBeatChange;
+
       conductor.current.addRhythm(baseRhythm);
+
+      // if (pendingBeatChange) {
+      //   baseRhythm.updateBeats(pendingBeatChange, isRunningRef.current, 'base');
+      // }
 
       baseRhythm.on('beatChange', updateBeatChange);
       baseRhythm.on('updatedBeats', (updatedBeats: number) => {
@@ -272,12 +282,16 @@ function App() {
       // has a pending beat change so rhythms
       // are synced on beat 1
       const pendingBeatChange =
-        conductor.current.getRhythm(0).pendingBeatChange;
+        conductor.current.getRhythm(0).pendingBeatChanges;
 
       conductor.current.addRhythm(polyRhythm);
 
-      if (pendingBeatChange) {
-        polyRhythm.updateBeats(pendingBeatChange, isRunningRef.current, 'base');
+      if (pendingBeatChange.hasUpdate) {
+        polyRhythm.updateBeats(
+          pendingBeatChange.base.beats,
+          polyTotalBeats,
+          isRunningRef.current,
+        );
       }
 
       polyRhythm.on('beatChange', updateBeatChange);
@@ -415,7 +429,7 @@ function App() {
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(0);
 
-      conductor.current.updateBeats(updatedBeatCount);
+      conductor.current.updateBeats(updatedBeatCount, null);
       const newBeatCount = getBeatCount(parseInt(value));
 
       if (!isRunning) {
@@ -446,7 +460,7 @@ function App() {
     if (conductor.current) {
       const rhythm = conductor.current.getRhythm(1);
 
-      rhythm.updateBeats(updatedBeatCount, isRunning, 'poly');
+      rhythm.updateBeats(null, updatedBeatCount, isRunning);
       const newBeatCount = getBeatCount(parseInt(value));
 
       if (!isRunning) {
@@ -482,24 +496,6 @@ function App() {
       // setPolyBeat(1);
     }
   }
-
-  /**
-   * +++++++++++
-   * Poly Rhythm Training Toggle
-   * +++++++++++
-   */
-  // function updateUsePolyrhythmToggle(usePoly: boolean): void {
-  //   setUsePolyrhythm(usePoly);
-  //   if (!usePoly && selectedSetting === 'polyrhythm') {
-  //     setSelectedSetting('metronome');
-  //   }
-
-  //   if (!usePoly && conductor.current) {
-  //     conductor.current.getRhythm(1).kill();
-  //     conductor.current.removeRhythm(1);
-  //     // setPolyBeat(1);
-  //   }
-  // }
 
   function isMobileUserAgent() {
     const userAgent = navigator.userAgent;
@@ -623,8 +619,10 @@ function App() {
           <div className="flex">
             {/* Beat Count */}
             <section className="flex width-100 space-between align-center">
-              <div className="text-light">beats per measure</div>
-              <div className="flex">
+              <div className="text-light text-left flex-1">
+                beats per measure
+              </div>
+              <div className="flex flex-1">
                 <button
                   disabled={(beatCountGhost ?? beatCount).value === '1'}
                   className="mr-2"
@@ -650,10 +648,10 @@ function App() {
 
             {/* Subdivision */}
             <section className="flex width-100 space-between align-center">
-              <div className="text-light">subdivision</div>
-              <div className="flex">
+              <div className="text-light text-left flex-1">subdivision</div>
+              <div className="flex flex-1">
                 <Dropdown
-                  variant="small"
+                  variant="full"
                   data={subdivisionData}
                   currentValue={subdivision}
                   onChange={updateSubdivision}
@@ -682,8 +680,10 @@ function App() {
             {/* polyrhythm settings */}
             {usePolyrhythm && (
               <section className="flex width-100 space-between align-center indented">
-                <div className="text-light">poly beats per measure</div>
-                <div className="flex">
+                <div className="text-light text-left flex-1">
+                  poly beats per measure
+                </div>
+                <div className="flex flex-1">
                   <button
                     disabled={
                       (polyBeatCountGhost ?? polyBeatCount).value === '1'
@@ -714,10 +714,10 @@ function App() {
 
             {usePolyrhythm && (
               <section className="flex width-100 space-between align-center indented">
-                <div className="text-light">subdivision</div>
-                <div className="flex">
+                <div className="text-light flex-1 text-left">subdivision</div>
+                <div className="flex flex-1">
                   <Dropdown
-                    variant="small"
+                    variant="full"
                     data={subdivisionData}
                     currentValue={polySubdivision}
                     onChange={updatePolySubdivision}
@@ -731,11 +731,11 @@ function App() {
           {/* Frequency Sliders */}
           <div className="flex">
             <section className="flex width-100 space-between align-center">
-              <div className="text-light">gain</div>
-              <div className="flex">
+              <div className="text-light text-left flex-1">gain</div>
+              <div className="flex flex-1">
                 <Slider
                   min={0.1}
-                  max={1}
+                  max={1.2}
                   step={0.1}
                   label=""
                   currentValue={frequencyData.gain}
@@ -747,10 +747,10 @@ function App() {
             </section>
 
             <section className="flex width-100 space-between align-center">
-              <div className="text-light">frequency</div>
-              <div className="flex">
+              <div className="text-light text-left flex-1">frequency</div>
+              <div className="flex flex-1">
                 <Slider
-                  min={100}
+                  min={500}
                   max={1500}
                   step={10}
                   label=""
@@ -763,11 +763,11 @@ function App() {
             </section>
 
             <section className="flex width-100 space-between align-center">
-              <div className="text-light">beat one pitch</div>
-              <div className="flex">
+              <div className="text-light text-left flex-1">beat one pitch</div>
+              <div className="flex flex-1">
                 <Slider
-                  min={-100}
-                  max={100}
+                  min={1}
+                  max={6}
                   step={1}
                   label=""
                   currentValue={frequencyData.beatOneOffset}
@@ -779,11 +779,13 @@ function App() {
             </section>
 
             <section className="flex width-100 space-between align-center">
-              <div className="text-light">subdivided pitch</div>
-              <div className="flex">
+              <div className="text-light text-left flex-1">
+                subdivided pitch
+              </div>
+              <div className="flex flex-1">
                 <Slider
-                  min={-50}
-                  max={50}
+                  min={-5}
+                  max={6}
                   step={1}
                   label=""
                   currentValue={frequencyData.subdividedOffset}
@@ -815,11 +817,11 @@ function App() {
             {/* Poly Frequency Sliders */}
             {usePolyrhythm && (
               <section className="flex width-100 space-between align-center indented">
-                <div className="text-light">gain</div>
-                <div className="flex">
+                <div className="text-light text-left flex-1">gain</div>
+                <div className="flex flex-1">
                   <Slider
                     min={0.1}
-                    max={1}
+                    max={1.2}
                     step={0.1}
                     label=""
                     currentValue={polyFrequencyData.gain}
@@ -833,10 +835,10 @@ function App() {
 
             {usePolyrhythm && (
               <section className="flex width-100 space-between align-center indented">
-                <div className="text-light">frequency</div>
-                <div className="flex">
+                <div className="text-light text-left flex-1">frequency</div>
+                <div className="flex flex-1">
                   <Slider
-                    min={100}
+                    min={500}
                     max={1500}
                     step={10}
                     label=""
@@ -851,11 +853,13 @@ function App() {
 
             {usePolyrhythm && (
               <section className="flex width-100 space-between align-center indented">
-                <div className="text-light">beat one pitch</div>
-                <div className="flex">
+                <div className="text-light text-left flex-1">
+                  beat one pitch
+                </div>
+                <div className="flex flex-1">
                   <Slider
-                    min={-100}
-                    max={100}
+                    min={1}
+                    max={6}
                     step={1}
                     label=""
                     currentValue={polyFrequencyData.beatOneOffset}
@@ -869,11 +873,13 @@ function App() {
 
             {usePolyrhythm && (
               <section className="flex width-100 space-between align-center indented">
-                <div className="text-light">subdivided pitch</div>
-                <div className="flex">
+                <div className="text-light text-left flex-1">
+                  subdivided pitch
+                </div>
+                <div className="flex flex-1">
                   <Slider
-                    min={-50}
-                    max={50}
+                    min={-5}
+                    max={6}
                     step={1}
                     label=""
                     currentValue={polyFrequencyData.subdividedOffset}

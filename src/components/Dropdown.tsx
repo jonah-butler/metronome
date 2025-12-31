@@ -11,7 +11,7 @@ interface DropdownProps {
   label?: string;
   currentValue: DropdownOptions;
   disabled?: boolean;
-  variant?: 'small' | 'medium' | 'large';
+  variant?: 'small' | 'medium' | 'large' | 'full';
   onChange: (value: string) => void;
 }
 
@@ -24,7 +24,7 @@ function Dropdown({
   variant = 'medium',
 }: DropdownProps) {
   return (
-    <div className="dropdown">
+    <div className={`dropdown ${variant}`}>
       <div className="dropdown__label-container">{label}</div>
       <div></div>
       <select

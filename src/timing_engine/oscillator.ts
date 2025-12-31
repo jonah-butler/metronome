@@ -59,8 +59,16 @@ export class Oscillator implements NotePlayer {
 
     // compute base frequency
     let freq = this.frequency;
-    if (isFirstNote) freq += this.beatOneOffset;
-    else if (isSubdividedNote) freq += this.subdividedOffset;
+    if (isFirstNote) freq = freq * this.calculateInterval(this.beatOneOffset);
+    else if (isSubdividedNote) {
+      const interval = this.calculateInterval(this.subdividedOffset);
+      console.log(interval);
+      if (this.subdividedOffset <= 0) {
+        freq = freq / interval;
+      } else {
+        freq = freq * interval;
+      }
+    }
 
     osc.frequency.setValueAtTime(freq, startTime);
 
@@ -88,6 +96,37 @@ export class Oscillator implements NotePlayer {
 
   updateFrequency(frequency: number): void {
     this.frequency = frequency;
+  }
+
+  calculateInterval(range: number): number {
+    switch (range) {
+      case -5:
+        return 2;
+      case -4:
+        return 3 / 2;
+      case -3:
+        return 3 / 2;
+      case -2:
+        return 4 / 3;
+      case -1:
+        return 5 / 4;
+      case 0:
+        return 6 / 5;
+      case 1:
+        return 1;
+      case 2:
+        return 6 / 5;
+      case 3:
+        return 5 / 4;
+      case 4:
+        return 4 / 3;
+      case 5:
+        return 3 / 2;
+      case 6:
+        return 2;
+      default:
+        return 1;
+    }
   }
 
   updateFrequencyData(data: FrequencyData): void {

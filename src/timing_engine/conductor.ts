@@ -96,9 +96,16 @@ export class Conductor extends EventEmitter {
     this.rhythms = [...this.rhythms, rhythm];
   }
 
-  updateBeats(updatedBeatCount: number): void {
+  updateBeats(
+    updatedBeatCount: number | null,
+    updatedPolyBeatCount: number | null,
+  ): void {
     for (const rhythm of this.rhythms) {
-      rhythm.updateBeats(updatedBeatCount, this.isRunning, 'base');
+      rhythm.updateBeats(
+        updatedBeatCount,
+        updatedPolyBeatCount,
+        this.isRunning,
+      );
     }
   }
 
