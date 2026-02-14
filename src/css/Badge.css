@@ -1,0 +1,13 @@
+.badge {
+  border-radius: 20px;
+  background-color: #321221;
+  color: var(--pink-purple);
+  padding: 0.25rem 2rem;
+  border: 1px solid var(--pink-purple);
+  font-size: 12px;
+  align-items: center;
+
+  span svg {
+    width: 18px;
+  }
+}

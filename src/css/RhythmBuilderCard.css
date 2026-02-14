@@ -1,0 +1,48 @@
+.rhythm-builder-card {
+  min-width: 300px;
+  max-width: 500px;
+  border-radius: 0.75rem;
+  border: 1px solid #2e2e2e;
+  background: var(--medium-black);
+  min-height: 120px;
+  transition: all 0.2s ease;
+  flex: 0 0 auto;
+  padding: 1rem;
+  user-select: none;
+}
+
+.rhythm-builder-card:hover {
+  border: 1px solid var(--pink-purple);
+  cursor: pointer;
+  opacity: 0.9;
+  box-shadow: 0px 0px 20px 1px rgba(248, 33, 173, 0.35);
+}
+
+.action-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--pink-purple);
+  font-size: 14px;
+
+  .drag-container {
+    display: flex;
+    align-items: center;
+
+    .drag-icon {
+      touch-action: none;
+      cursor: grab;
+      color: var(--extra-light-gray);
+    }
+    .drag-icon:hover {
+      color: var(--pink-purple);
+    }
+  }
+
+  .trash-icon {
+    color: var(--extra-light-gray);
+  }
+  .trash-icon:hover {
+    color: var(--pink-purple);
+  }
+}

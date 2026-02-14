@@ -1,24 +1,39 @@
 import { EventEmitter } from 'events';
-import { type ConductorParams } from './conductor.types';
+import type { RhythmBlock } from '../context/BuilderContext.types';
+import { getSubdivision } from '../services/rhythm.services';
+import type { ConductorParams, WorkflowEmit } from './conductor.types';
+import { Oscillator } from './oscillator';
 import { Rhythm } from './rhythm';
 
-export class Conductor extends EventEmitter {
+export interface IConductor {
+  on(event: 'workflowBlock', listener: (data: WorkflowEmit) => void): this;
+}
+
+export class Conductor extends EventEmitter implements IConductor {
   static LOOK_AHEAD = 0.1;
 
   isRunning = false;
   private rhythms: Rhythm[] = [];
+  private measures = 0;
+  private currentBlock = 0;
 
   audioCtx: AudioContext;
   bpm: number;
+  workflow: RhythmBlock[] | undefined;
 
-  constructor({ audioCtx, bpm }: ConductorParams) {
+  constructor({ audioCtx, bpm, workflow }: ConductorParams) {
     super();
     this.audioCtx = audioCtx;
     this.bpm = bpm;
+    this.workflow = workflow;
   }
 
   private get currentTime(): number {
     return this.audioCtx.currentTime;
+  }
+
+  private get useWorkflow(): boolean {
+    return this.workflow !== undefined && this.workflow.length > 0;
   }
 
   get numberOfRhythms(): number {
@@ -34,7 +49,7 @@ export class Conductor extends EventEmitter {
     if (!this.isRunning) return;
 
     for (const rhythm of this.rhythms) {
-      if (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
+      while (rhythm.nextNote < this.currentTime + Conductor.LOOK_AHEAD) {
         rhythm.play();
         rhythm.advance(this.bpm, this.currentTime);
       }
@@ -42,6 +57,118 @@ export class Conductor extends EventEmitter {
 
     if (this.isRunning) {
       requestAnimationFrame(() => this.schedule());
+    }
+  }
+
+  getNextBlock(): RhythmBlock | null {
+    if (!this.workflow) return null;
+    if (this.currentBlock === this.workflow.length - 1) {
+      return this.workflow[0];
+    }
+    return this.workflow[this.currentBlock + 1];
+  }
+
+  initialize(): void {
+    if (this.workflow && this.workflow.length) {
+      const block = this.workflow[0];
+
+      const osc1 = new Oscillator(this.audioCtx, 750, 3, -3, 0.5);
+      const osc2 = new Oscillator(this.audioCtx, 550, 3, -3, 0.5);
+
+      const r1 = new Rhythm({
+        subdivision: getSubdivision(block.subdivision.value),
+        beats: Number(block.beats.value),
+        state: block.state,
+        sound: osc1,
+      });
+
+      r1.on('scheduled', (beat: number) => {
+        if (beat === 1) {
+          this.measures += 1;
+        }
+
+        if (!this.workflow) return;
+
+        const workflow = this.workflow[this.currentBlock];
+
+        if (this.measures === workflow.measures) {
+          const block = this.getNextBlock();
+          if (block?.beats.value !== workflow.beats.value) {
+            this.updateBeats(Number(block?.beats.value), null);
+          }
+        }
+
+        if (this.measures > workflow.measures) {
+          const nextBlock =
+            this.currentBlock === this.workflow.length - 1
+              ? 0
+              : this.currentBlock + 1;
+          this.currentBlock = nextBlock;
+
+          this.measures = 1;
+
+          this.currentBlock = nextBlock;
+
+          const newWorkflow = this.workflow[this.currentBlock];
+
+          this.emit('workflowBlock', {
+            id: newWorkflow.id,
+            index: this.currentBlock,
+            bpm: Number(newWorkflow.bpm),
+            measures: newWorkflow.measures,
+            beats: Number(newWorkflow.beats.value),
+          } as WorkflowEmit);
+
+          this.bpm = newWorkflow.bpm;
+
+          const r1 = this.getRhythm(0);
+          r1.resetState(newWorkflow.state);
+          r1.setSubdivision(getSubdivision(newWorkflow.subdivision.value));
+          if (newWorkflow.usePoly) {
+            if (this.numberOfRhythms !== 2) {
+              const r2 = new Rhythm({
+                subdivision: getSubdivision(newWorkflow.polySubdivision.value),
+                beats: Number(newWorkflow.beats.value),
+                state: newWorkflow.polyState,
+                sound: osc2,
+                poly: Number(newWorkflow.polyBeats.value),
+              });
+
+              this.addRhythm(r2);
+            } else {
+              const polyRhythm = this.getRhythm(1);
+
+              polyRhythm.updateBeats(
+                Number(newWorkflow.beats.value),
+                Number(newWorkflow.polyBeats.value),
+                true,
+              );
+              polyRhythm.resetState(newWorkflow.polyState);
+              polyRhythm.setSubdivision(
+                getSubdivision(newWorkflow.polySubdivision.value),
+              );
+            }
+          } else {
+            if (this.numberOfRhythms === 2) {
+              this.removeRhythm(1);
+            }
+          }
+        }
+      });
+
+      this.addRhythm(r1);
+
+      if (block.usePoly) {
+        const r2 = new Rhythm({
+          subdivision: getSubdivision(block.polySubdivision.value),
+          beats: Number(block.beats.value),
+          state: block.polyState,
+          sound: osc2,
+          poly: Number(block.polyBeats.value),
+        });
+
+        this.addRhythm(r2);
+      }
     }
   }
 
@@ -68,8 +195,9 @@ export class Conductor extends EventEmitter {
       let nextBeat = beatTable[0];
       let step = 0;
 
+      const EPS = 1e-6;
       for (let i = 0; i < beatTable.length; i++) {
-        if (beatTable[i] > currentBeat) {
+        if (beatTable[i] + EPS >= currentBeat) {
           nextBeat = beatTable[i];
           step = i;
           break;
@@ -84,6 +212,12 @@ export class Conductor extends EventEmitter {
       const deltaSeconds = deltaBeats * spb;
 
       rhythm.nextNote = anchor.nextNote + deltaSeconds;
+
+      const now = this.currentTime;
+      const MIN_LEAD = 0.003; // 3ms (tweak up to 0.01 if needed)
+      if (rhythm.nextNote < now + MIN_LEAD) {
+        rhythm.nextNote = now + MIN_LEAD;
+      }
 
       rhythm.beatTrack = step + 1;
       rhythm.step = step;
@@ -133,6 +267,21 @@ export class Conductor extends EventEmitter {
     for (const rhythm of this.rhythms) {
       await this.audioCtx.resume();
       rhythm.init(this.currentTime);
+    }
+
+    if (this.useWorkflow) {
+      this.currentBlock = 0;
+      if (this.workflow) {
+        const workflow = this.workflow[this.currentBlock];
+
+        this.emit('workflowBlock', {
+          id: workflow.id,
+          index: this.currentBlock,
+          bpm: Number(workflow.bpm),
+          measures: workflow.measures,
+          beats: Number(workflow.beats.value),
+        } as WorkflowEmit);
+      }
     }
 
     this.isRunning = true;

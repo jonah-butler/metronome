@@ -1,0 +1,8 @@
+.flare {
+  width: 500px;
+  height: 500px;
+  background: radial-gradient(circle, rgb(236, 24, 137) 0%, transparent 70%);
+  opacity: 0.2;
+  position: absolute;
+  z-index: -1;
+}

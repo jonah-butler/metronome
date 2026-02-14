@@ -224,6 +224,8 @@ export class Rhythm extends EventEmitter {
       this.handleBeatChange();
     }
 
+    this.emit('scheduled', tempBeat); // use this elsewhere too
+
     if (this.state[this.currentBeat - 1]) {
       const osc = this.sound.play(
         this.nextNote,

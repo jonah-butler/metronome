@@ -106,3 +106,21 @@ export const beatCountData: DropdownOptions[] = [
     value: '11',
   },
 ];
+
+export const tempoData = (): DropdownOptions[] => {
+  const low = 20;
+  const high = 250;
+  let i = low;
+  const options: DropdownOptions[] = [];
+
+  while (i <= high) {
+    const label = i.toString();
+    const value = i.toString();
+
+    options.push({ label, value });
+
+    i += 10;
+  }
+
+  return options;
+};

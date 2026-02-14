@@ -1,6 +1,6 @@
 :root {
   /* global text styles */
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Space Grotesk', sans-serif;
   line-height: 1.5;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -13,7 +13,9 @@
   --light-black: #242424;
   --medium-black: #090909;
   --pink-purple: #f821ad;
+  --light-gray: #141414;
   --dark-gray: #393439ff;
+  --extra-light-gray: #8b8b8b;
   --light-purple: #9045e6ff;
   --white: #fff;
   --muted-pink-purple: #c21c8884;
@@ -21,17 +23,43 @@
   --max-width-breakpoint: 1500px;
 }
 
+.color-secondary {
+  color: #8c8c8c;
+}
+
+.color-purple {
+  color: var(--light-purple);
+}
+
+.color-white {
+  color: var(--white);
+}
+
 body {
-  display: flex;
+  /* display: flex; */
   margin: 0px;
-  align-items: center;
+  /* align-items: center; */
   height: 100vh;
+  /* overflow: hidden; */
 }
 
 @media (max-width: 1500px) {
   body {
     height: auto !important;
   }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin: 0.25rem 0;
+}
+
+p {
+  margin: 0.25rem 0;
 }
 
 button {
@@ -44,13 +72,68 @@ button {
   background-color: #090909;
   cursor: pointer;
   user-select: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
 }
 
-button:hover {
+button:not(.outline):hover {
   border-color: var(--pink-purple);
 }
 
-button:focus,
+button:active,
 button:focus-visible {
   outline: 4px auto var(--pink-purple);
+}
+
+hr {
+  border: 1px solid var(--muted-pink-purple);
+}
+
+a {
+  color: var(--light-purple);
+  text-decoration: none;
+}
+
+table {
+  text-align: left;
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1rem 0;
+}
+
+thead {
+  th {
+    border-bottom: 1px solid var(--dark-gray);
+    color: var(--extra-light-gray);
+    text-transform: uppercase;
+    font-size: 13px;
+    padding: 0.5rem 0.5rem 0.5rem 0;
+  }
+}
+
+tbody {
+  td {
+    padding: 0.5rem 0.5rem 0.5rem 0;
+    font-size: 12px;
+    border-top: 1px solid var(--dark-gray);
+    color: var(--extra-light-gray);
+    padding: 0.25rem;
+    cursor: pointer;
+  }
+}
+
+tbody td:first-child {
+  color: white;
+  font-size: 13px;
+}
+
+tbody tr:hover {
+  background: var(--pink-purple);
+}
+
+tbody tr:hover td {
+  color: white;
 }

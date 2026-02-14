@@ -62,7 +62,6 @@ export class Oscillator implements NotePlayer {
     if (isFirstNote) freq = freq * this.calculateInterval(this.beatOneOffset);
     else if (isSubdividedNote) {
       const interval = this.calculateInterval(this.subdividedOffset);
-      console.log(interval);
       if (this.subdividedOffset <= 0) {
         freq = freq / interval;
       } else {

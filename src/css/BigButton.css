@@ -1,0 +1,46 @@
+.big-button {
+  border-radius: 0.75rem;
+  background-color: var(--light-gray);
+  border: 1px solid var(--light-black);
+  max-width: 36rem;
+  width: 100%;
+  align-items: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+
+  .big-button__container {
+    padding: 1.75rem;
+  }
+
+  .left {
+    background-color: var(--light-black);
+    padding: 1rem;
+    border-radius: 0.75rem;
+    display: flex;
+    align-items: center;
+    max-height: 30px;
+  }
+
+  .right {
+    text-align: left;
+  }
+}
+
+.big-button:hover {
+  transform: translate(2px, 2px);
+  border: 1px solid var(--pink-purple);
+  opacity: 0.9;
+  box-shadow: 0px 0px 20px 1px rgba(248, 33, 173, 0.65);
+
+  .left {
+    background-color: #28161e;
+
+    svg {
+      stroke: var(--pink-purple);
+    }
+  }
+}
+
+.big-button:active {
+  transform: translate(4px, 4px);
+}

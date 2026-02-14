@@ -7,7 +7,6 @@ type TabsProps = {
   updateTab(tab: number): void;
 };
 
-// React.FC<React.SVGProps<SVGSVGElement>>
 type TabProps = {
   label: React.ReactNode;
   children: React.ReactNode;

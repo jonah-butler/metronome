@@ -1,3 +1,4 @@
+import { v4 as uuidv4 } from 'uuid';
 import type { DropdownOptions } from '../components/Dropdown';
 import { beatCountData } from '../data';
 import { type BeatState } from '../timing_engine/rhythm.types';
@@ -25,4 +26,19 @@ export const getBeatState = (
   }
 
   return new Array(beats / subdivision).fill(1);
+};
+
+export const sanitizeOption = (option: DropdownOptions) => {
+  const clonedOption = { ...option };
+  delete clonedOption.icon;
+  return clonedOption;
+};
+
+export const generateUUID = (): string => {
+  const crypto = window.crypto;
+  if (window.crypto && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+
+  return uuidv4();
 };

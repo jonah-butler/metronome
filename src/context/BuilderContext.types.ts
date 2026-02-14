@@ -1,0 +1,49 @@
+import { type DropdownOptions } from '../components/Dropdown';
+import { beatCountData, subdivisionData } from '../data';
+import {
+  generateUUID,
+  getBeatState,
+  sanitizeOption,
+} from '../services/rhythm.services';
+import { type BeatState } from '../timing_engine/rhythm.types';
+import type { RhythmBlockStore } from './IndexedDB.types';
+
+export type RhythmBlock = {
+  id: string;
+  bpm: number;
+  measures: number;
+  subdivision: DropdownOptions;
+  beats: DropdownOptions;
+  usePoly: boolean;
+  state: BeatState[];
+  polyBeats: DropdownOptions;
+  polySubdivision: DropdownOptions;
+  polyState: BeatState[];
+};
+
+export type PolyState = {
+  beats: DropdownOptions;
+  subdivision: DropdownOptions;
+  state: BeatState[];
+};
+
+export const DefaultRhythmBlock = {
+  id: generateUUID(),
+  bpm: 100,
+  measures: 1,
+  subdivision: sanitizeOption(subdivisionData[0]),
+  beats: beatCountData[3],
+  usePoly: false,
+  state: getBeatState(4, 'base'),
+  polyBeats: beatCountData[2],
+  polySubdivision: sanitizeOption(subdivisionData[0]),
+  polyState: getBeatState(3, 'base'),
+};
+
+export const DefaultRhythmWorkflow: RhythmBlockStore = {
+  name: '',
+  id: generateUUID(),
+  createdAt: Date.now(),
+  updatedAt: Date.now(),
+  blocks: [DefaultRhythmBlock],
+};

@@ -1,0 +1,18 @@
+.input-number {
+  border: none;
+  background: rgba(36, 36, 36, 0.5);
+  transition: 0.4s;
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  color: white;
+  font-size: 14px;
+  width: 50px;
+  border-radius: 0.5rem;
+  text-align: center;
+}
+
+.input-number:focus-visible {
+  border: 1px solid var(--pink-purple);
+  outline: none;
+}
