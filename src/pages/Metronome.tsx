@@ -303,17 +303,6 @@ export default function Metronome() {
         }
       });
     }
-
-    return () => {
-      if (conductor.current && conductor.current.isRunning) {
-        console.log(123);
-        conductor.current.stop();
-        setBeatCountGhost(null);
-        setPolyBeatCountGhost(null);
-        releaseWakeLock();
-        setIsRunning(false);
-      }
-    };
   }, [
     subdivision,
     beatCount,
@@ -323,6 +312,19 @@ export default function Metronome() {
     polyFrequencyData,
     polySubdivision,
   ]);
+
+  // cleanup only
+  useEffect(() => {
+    return () => {
+      if (conductor.current?.isRunning) {
+        conductor.current.stop();
+        conductor.current.removeAllListeners();
+        conductor.current = null;
+      }
+
+      releaseWakeLock();
+    };
+  }, []);
 
   function toggleMetronome(): void {
     if (!conductor.current) return;
