@@ -80,7 +80,7 @@
 
 @keyframes animateProgress {
   0% {
-    with: 0;
+    width: 0;
   }
   100% {
     width: 100%;
