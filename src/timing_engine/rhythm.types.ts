@@ -9,3 +9,9 @@ export type RhythmParams = {
 };
 
 export type BeatState = 0 | 1;
+
+export type RhythmEvents = {
+  scheduled: number;
+  beatChange: number;
+  updatedBeats: number;
+};

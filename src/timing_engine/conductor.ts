@@ -1,7 +1,11 @@
-import { EventEmitter } from 'events';
 import type { RhythmBlock } from '../context/BuilderContext.types';
+import { Emitter } from '../services/emit';
 import { getSubdivision } from '../services/rhythm.services';
-import type { ConductorParams, WorkflowEmit } from './conductor.types';
+import type {
+  CondcutorEvents,
+  ConductorParams,
+  WorkflowEmit,
+} from './conductor.types';
 import { Oscillator } from './oscillator';
 import { Rhythm } from './rhythm';
 
@@ -9,7 +13,7 @@ export interface IConductor {
   on(event: 'workflowBlock', listener: (data: WorkflowEmit) => void): this;
 }
 
-export class Conductor extends EventEmitter implements IConductor {
+export class Conductor extends Emitter<CondcutorEvents> {
   static LOOK_AHEAD = 0.1;
 
   isRunning = false;

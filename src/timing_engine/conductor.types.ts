@@ -17,3 +17,9 @@ export type WorkflowEmit = {
   measures: number;
   beats: number;
 };
+
+export type CondcutorEvents = {
+  workflowBlock: WorkflowEmit;
+  isRunning: boolean;
+  updateBPM: number;
+};

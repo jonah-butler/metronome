@@ -38,7 +38,7 @@ function BPMGrid({
 
   const PRESS_THRESHOLD = 1000;
 
-  const pressTimer = useRef<NodeJS.Timeout | null>(null);
+  const pressTimer = useRef<ReturnType<typeof setInterval> | null>(null);
   const [longPress, setLongPress] = useState(false);
 
   type ModalCoordinates = {

@@ -1,6 +1,6 @@
-import { EventEmitter } from 'events';
+import { Emitter } from '../services/emit';
 import { type FrequencyData, type NotePlayer } from './oscillator.types';
-import { type BeatState, type RhythmParams } from './rhythm.types';
+import type { BeatState, RhythmEvents, RhythmParams } from './rhythm.types';
 
 type BeatChanges = {
   hasUpdate: boolean;
@@ -12,7 +12,7 @@ type BeatChanges = {
   };
 };
 
-export class Rhythm extends EventEmitter {
+export class Rhythm extends Emitter<RhythmEvents> {
   killed = true;
   step: number = 0;
   activeOscillators: OscillatorNode[] = [];
