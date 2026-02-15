@@ -6,7 +6,8 @@ import './index.css';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <BrowserRouter basename="/rhythm-a-ning">
+    {/* <BrowserRouter basename="/rhythm-a-ning"> */}
+    <BrowserRouter>
       <App />
     </BrowserRouter>
   </StrictMode>,
