@@ -1,4 +1,5 @@
 import {
+  useEffect,
   useRef,
   useState,
   type MouseEvent,
@@ -34,6 +35,12 @@ function BPMSpinner({
   const bpmSpinnerRef = useRef<HTMLDivElement | null>(null);
 
   let startAngle = 0;
+
+  useEffect(() => {
+    setCount(bpm);
+    countRef.current = bpm;
+    setStyleCount(bpm);
+  }, [bpm]);
 
   function getAngleFromCenter(x: number, y: number) {
     if (!bpmSpinnerRef.current) return 0;

@@ -5,6 +5,7 @@
   -moz-user-select: none; /* Firefox */
   -ms-user-select: none; /* Internet Explorer/Edge */
   -khtml-user-select: none; /* Konqueror HTML */
+  overflow-x: hidden;
 }
 
 input[type='color'],

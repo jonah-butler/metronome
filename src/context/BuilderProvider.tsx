@@ -4,7 +4,7 @@ import { useMemo, useState, type ReactNode } from 'react';
 import { RhythmBuilderContext } from './BuilderContext';
 import {
   DefaultRhythmBlock,
-  DefaultRhythmWorkflow,
+  DefaultRhythmWorkflowFactory,
   type PolyState,
   type RhythmBlock,
 } from './BuilderContext.types';
@@ -13,7 +13,7 @@ import { averageTempo, totalMeasures, totalTime } from './builder.helpers';
 
 export function RhythmBuilderProvider({ children }: { children: ReactNode }) {
   const [rhythmWorkflow, setRhythmWorkflow] = useState<RhythmBlockStore>({
-    ...DefaultRhythmWorkflow,
+    ...DefaultRhythmWorkflowFactory(),
   });
 
   const setActiveBlocks = (workflow: RhythmBlockStore): void => {
@@ -41,7 +41,7 @@ export function RhythmBuilderProvider({ children }: { children: ReactNode }) {
   };
 
   const resetWorkflow = (): void => {
-    setRhythmWorkflow({ ...DefaultRhythmWorkflow });
+    setRhythmWorkflow(DefaultRhythmWorkflowFactory());
   };
 
   const updateBlockOrder = (active: Active, over: Over): void => {

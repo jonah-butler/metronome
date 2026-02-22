@@ -2,9 +2,9 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import BuilderIcon from '../../assets/icons/builder.svg?react';
+import FolderIcon from '../../assets/icons/folder.svg?react';
 import NoteIcon from '../../assets/icons/note.svg?react';
 import ResetIcon from '../../assets/icons/reset.svg?react';
-import SaveIcon from '../../assets/icons/save.svg?react';
 import TrashIcon from '../../assets/icons/trash.svg?react';
 import Modal from '../../components/Modals/Generic';
 import {
@@ -123,31 +123,31 @@ export default function BuilderHeader() {
       </button>
       <div className={`builder-actions ${mobileMenuOpen ? 'open' : ''}`}>
         <button
-          className="color-white"
+          className="color-white font-size-13"
           onClick={() => handleMobileActionMenu(() => navigate('/metronome'))}
         >
           <NoteIcon style={{ width: '18px' }} /> Metronome
         </button>
 
         <button
-          className="color-white"
+          className="color-white font-size-13"
           onClick={() => handleMobileActionMenu(() => setResetModalOpen(true))}
         >
           <ResetIcon style={{ width: '18px' }} /> Reset
         </button>
 
         <button
-          className="color-white"
+          className="color-white font-size-13"
           onClick={() => handleMobileActionMenu(() => openNewWorkflowModal())}
         >
           <BuilderIcon style={{ width: '18px' }} /> New
         </button>
 
         <button
-          className="color-white"
+          className="color-white font-size-13"
           onClick={() => handleMobileActionMenu(() => openLoadModal())}
         >
-          <SaveIcon style={{ width: '18px' }} /> Load
+          <FolderIcon style={{ width: '18px' }} /> Load
         </button>
       </div>
       {newWorkflowModalOpen ? (

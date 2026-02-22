@@ -231,6 +231,7 @@ export class Rhythm extends Emitter<RhythmEvents> {
         this.nextNote,
         this.isBeatOne,
         this.isSubdividedNote,
+        // gainNode,
       );
 
       this.activeOscillators.push(osc);

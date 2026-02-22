@@ -1,8 +1,14 @@
 import { v4 as uuidv4 } from 'uuid';
 import type { DropdownOptions } from '../components/Dropdown';
-import { beatCountData } from '../data';
+import { type RhythmBlock } from '../context/BuilderContext.types';
+import { beatCountData, subdivisionData } from '../data';
 import { type BeatState } from '../timing_engine/rhythm.types';
 import { Subdivisions } from '../timing_engine/types';
+
+export type RhythmBlockSlim = Pick<
+  RhythmBlock,
+  'bpm' | 'subdivision' | 'beats' | 'usePoly' | 'state'
+>;
 
 export const getSubdivision = (subdivisionKey: string): number => {
   return Subdivisions[subdivisionKey as keyof typeof Subdivisions];
@@ -41,4 +47,42 @@ export const generateUUID = (): string => {
   }
 
   return uuidv4();
+};
+
+export enum Rhythms {
+  SonClave23 = 'sonclave23',
+  SonClave32 = 'sonclave32',
+  RumbaClave23 = 'rumbaclave23',
+  RumbaClave32 = 'rumbaclave32',
+}
+
+export const RhythmsData: Record<Rhythms, RhythmBlockSlim> = {
+  [Rhythms.SonClave23]: {
+    bpm: 120,
+    subdivision: sanitizeOption(subdivisionData[3]),
+    beats: beatCountData[3],
+    usePoly: false,
+    state: [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+  },
+  [Rhythms.SonClave32]: {
+    bpm: 120,
+    subdivision: sanitizeOption(subdivisionData[3]),
+    beats: beatCountData[3],
+    usePoly: false,
+    state: [0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+  },
+  [Rhythms.RumbaClave23]: {
+    bpm: 120,
+    subdivision: sanitizeOption(subdivisionData[3]),
+    beats: beatCountData[3],
+    usePoly: false,
+    state: [0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1],
+  },
+  [Rhythms.RumbaClave32]: {
+    bpm: 120,
+    subdivision: sanitizeOption(subdivisionData[3]),
+    beats: beatCountData[3],
+    usePoly: false,
+    state: [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
+  },
 };

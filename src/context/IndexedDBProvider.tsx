@@ -43,13 +43,26 @@ export function IndexedDBProvider({ children }: { children: ReactNode }) {
 
     request.onupgradeneeded = () => {
       const db = request.result;
+      const tx = request.transaction;
+
+      let store: IDBObjectStore;
 
       if (!db.objectStoreNames.contains(DB_STORES.workflows)) {
-        const store = db.createObjectStore(DB_STORES.workflows, {
+        store = db.createObjectStore(DB_STORES.workflows, {
           keyPath: 'id',
         });
+      } else {
+        store = tx!.objectStore(DB_STORES.workflows);
+      }
 
+      if (!store.indexNames.contains('by_createdAt')) {
         store.createIndex('by_createdAt', 'createdAt');
+      }
+      if (!store.indexNames.contains('by_name')) {
+        store.createIndex('by_name', 'name');
+      }
+      if (!store.indexNames.contains('by_updatedAt')) {
+        store.createIndex('by_updatedAt', 'updatedAt');
       }
     };
 

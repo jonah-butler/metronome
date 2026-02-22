@@ -13,6 +13,8 @@
   padding: 2rem;
   border: 1px solid var(--pink-purple);
   animation: backdrop-in 140ms ease-out forwards;
+  max-height: 450px;
+  overflow: scroll;
 }
 
 .modal-backdrop {

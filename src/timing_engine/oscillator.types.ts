@@ -3,6 +3,7 @@ export interface NotePlayer {
     startTime: number,
     isFirstNote: boolean,
     isSubdividedNote: boolean,
+    // output: AudioNode | null,
   ): OscillatorNode;
   setupBuffer(): void;
   updateFrequency(frequency: number): void;

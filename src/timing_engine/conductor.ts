@@ -20,6 +20,9 @@ export class Conductor extends Emitter<CondcutorEvents> {
   private rhythms: Rhythm[] = [];
   private measures = 0;
   private currentBlock = 0;
+  // private audioElement: HTMLAudioElement;
+  // private streamDest: MediaStreamAudioDestinationNode;
+  // private masterGain: GainNode;
 
   audioCtx: AudioContext;
   bpm: number;
@@ -30,6 +33,19 @@ export class Conductor extends Emitter<CondcutorEvents> {
     this.audioCtx = audioCtx;
     this.bpm = bpm;
     this.workflow = workflow;
+
+    // this.audioElement = document.createElement('audio');
+    // this.audioElement.muted = false;
+
+    // this.streamDest = this.audioCtx.createMediaStreamDestination();
+
+    // // master output
+    // this.masterGain = this.audioCtx.createGain();
+    // this.masterGain.gain.value = 1.0;
+
+    // // route WebAudio -> stream -> audio element
+    // this.masterGain.connect(this.streamDest);
+    // this.audioElement.srcObject = this.streamDest.stream;
   }
 
   private get currentTime(): number {
@@ -268,8 +284,10 @@ export class Conductor extends Emitter<CondcutorEvents> {
   }
 
   async start(): Promise<boolean> {
+    await this.audioCtx.resume();
+    // await this.audioElement.play();
+
     for (const rhythm of this.rhythms) {
-      await this.audioCtx.resume();
       rhythm.init(this.currentTime);
     }
 

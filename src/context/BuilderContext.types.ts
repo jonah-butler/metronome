@@ -47,3 +47,13 @@ export const DefaultRhythmWorkflow: RhythmBlockStore = {
   updatedAt: Date.now(),
   blocks: [DefaultRhythmBlock],
 };
+
+export const DefaultRhythmWorkflowFactory = (): RhythmBlockStore => {
+  return {
+    name: '',
+    id: generateUUID(),
+    createdAt: Date.now(),
+    updatedAt: Date.now(),
+    blocks: [DefaultRhythmBlock],
+  };
+};

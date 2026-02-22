@@ -60,6 +60,7 @@ export default function RhythmBuilder() {
   };
 
   const addNewBlock = (): void => {
+    setHasChange(true);
     const newBlock = { ...DefaultRhythmBlock };
     newBlock.id = generateUUID();
 

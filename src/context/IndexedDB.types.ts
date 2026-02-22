@@ -1,7 +1,7 @@
 import { type GenericResponse } from '../types';
 import { type RhythmBlock } from './BuilderContext.types';
 
-export const DB_VERSION = 1;
+export const DB_VERSION = 3;
 export const DB_NAME = 'metronome';
 
 export const DB_STORES = {

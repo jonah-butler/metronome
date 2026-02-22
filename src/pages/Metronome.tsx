@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import '../App.css';
 import BeatGridSettings from '../assets/icons/beat-grid-settings.svg?react';
+import LibrarySettings from '../assets/icons/folder.svg?react';
 import SoundSettings from '../assets/icons/sound-settings.svg?react';
 import Display from '../components/Display';
 import Dropdown, { type DropdownOptions } from '../components/Dropdown';
@@ -8,10 +9,13 @@ import Slider from '../components/Slider';
 import { Tabs } from '../components/Tabs/Tabs';
 import Toggle from '../components/Toggle';
 import { beatCountData, subdivisionData } from '../data';
+// import { type RhythmBlock } from '../context/BuilderContext.types';
 import {
   getBeatCount,
   getBeatState,
   getSubdivision,
+  Rhythms,
+  RhythmsData,
 } from '../services/rhythm.services';
 import { releaseWakeLock, requestWakeLock } from '../services/wakelock';
 import { Conductor } from '../timing_engine/conductor';
@@ -454,7 +458,9 @@ export default function Metronome() {
         setTotalBeats(newBeatState);
         setBeatCount(newBeatCount);
       } else {
-        setBeatCountGhost(newBeatCount);
+        if (value !== beatCount.value) {
+          setBeatCountGhost(newBeatCount);
+        }
       }
     }
   }
@@ -577,6 +583,39 @@ export default function Metronome() {
       releaseWakeLock();
     }
   });
+
+  /**
+   * ++++++++++++++++++++++++++
+   * Library Rhythms
+   * ++++++++++++++++++++++++++
+   */
+
+  const setLibraryRhythm = (rhythm: Rhythms): void => {
+    if (isRunning) {
+      toggleMetronome();
+    }
+
+    const preset = RhythmsData[rhythm];
+    // beat count update
+    updateBeatCount(preset.beats.value);
+
+    // subdivision update
+    updateSubdivision(preset.subdivision.value);
+
+    // poly updates -- silence for now
+    if (usePolyrhythm) {
+      updateUsePolyrhythm(preset.usePoly);
+    }
+    // bpm updates
+    bpmRef.current = preset.bpm;
+    setBPM(preset.bpm);
+    updateBPM(bpmRef.current);
+
+    // state updates
+    setTotalBeats(preset.state);
+    totalBeatsRef.current = preset.state;
+    conductor.current?.getRhythm(0).resetState(preset.state);
+  };
 
   return (
     <>
@@ -921,6 +960,58 @@ export default function Metronome() {
                 </div>
               </section>
             )}
+          </div>
+        </Tabs.Tab>
+
+        <Tabs.Tab label={<LibrarySettings />}>
+          <div className="flex">
+            <section className="flex width-100 space-between align-center">
+              <div className="text-light text-left font-size-13 flex-1">
+                son clave
+              </div>
+              <div className="flex flex-col f-gap2">
+                <div className="flex flex-1">
+                  <button
+                    onClick={() => setLibraryRhythm(Rhythms.SonClave23)}
+                    className="filled small full"
+                  >
+                    2:3 son clave
+                  </button>
+                </div>
+                <div className="flex flex-1">
+                  <button
+                    onClick={() => setLibraryRhythm(Rhythms.SonClave32)}
+                    className="filled small full"
+                  >
+                    3:2 son clave
+                  </button>
+                </div>
+              </div>
+            </section>
+
+            <section className="flex width-100 space-between align-center">
+              <div className="text-light text-left font-size-13 flex-1">
+                rumba clave
+              </div>
+              <div className="flex flex-col f-gap2">
+                <div className="flex flex-1">
+                  <button
+                    onClick={() => setLibraryRhythm(Rhythms.RumbaClave23)}
+                    className="filled small full"
+                  >
+                    2:3 rumba clave
+                  </button>
+                </div>
+                <div className="flex flex-1">
+                  <button
+                    onClick={() => setLibraryRhythm(Rhythms.RumbaClave32)}
+                    className="filled small full"
+                  >
+                    3:2 rumba clave
+                  </button>
+                </div>
+              </div>
+            </section>
           </div>
         </Tabs.Tab>
       </Tabs>

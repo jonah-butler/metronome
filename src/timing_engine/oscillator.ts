@@ -51,6 +51,7 @@ export class Oscillator implements NotePlayer {
     startTime: number,
     isFirstNote: boolean,
     isSubdividedNote: boolean,
+    // _output: AudioNode | null,
   ): OscillatorNode {
     const osc = this.audioCtx.createOscillator();
     const gain = this.audioCtx.createGain();
