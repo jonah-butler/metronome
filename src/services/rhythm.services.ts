@@ -62,14 +62,14 @@ export const RhythmsData: Record<Rhythms, RhythmBlockSlim> = {
     subdivision: sanitizeOption(subdivisionData[3]),
     beats: beatCountData[3],
     usePoly: false,
-    state: [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0],
+    state: [0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
   },
   [Rhythms.SonClave32]: {
     bpm: 120,
     subdivision: sanitizeOption(subdivisionData[3]),
     beats: beatCountData[3],
     usePoly: false,
-    state: [0, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 0, 1, 0],
+    state: [1, 0, 0, 1, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0, 0, 0],
   },
   [Rhythms.RumbaClave23]: {
     bpm: 120,

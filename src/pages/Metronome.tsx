@@ -9,7 +9,6 @@ import Slider from '../components/Slider';
 import { Tabs } from '../components/Tabs/Tabs';
 import Toggle from '../components/Toggle';
 import { beatCountData, subdivisionData } from '../data';
-// import { type RhythmBlock } from '../context/BuilderContext.types';
 import {
   getBeatCount,
   getBeatState,
