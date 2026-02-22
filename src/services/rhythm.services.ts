@@ -54,6 +54,7 @@ export enum Rhythms {
   SonClave32 = 'sonclave32',
   RumbaClave23 = 'rumbaclave23',
   RumbaClave32 = 'rumbaclave32',
+  Tresillo = 'tresillo',
 }
 
 export const RhythmsData: Record<Rhythms, RhythmBlockSlim> = {
@@ -84,5 +85,12 @@ export const RhythmsData: Record<Rhythms, RhythmBlockSlim> = {
     beats: beatCountData[3],
     usePoly: false,
     state: [1, 0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
+  },
+  [Rhythms.Tresillo]: {
+    bpm: 120,
+    subdivision: sanitizeOption(subdivisionData[1]),
+    beats: beatCountData[3],
+    usePoly: false,
+    state: [1, 0, 0, 1, 0, 0, 1, 0],
   },
 };

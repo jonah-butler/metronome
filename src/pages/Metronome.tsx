@@ -1011,6 +1011,20 @@ export default function Metronome() {
                 </div>
               </div>
             </section>
+
+            <section className="flex width-100 space-between align-center">
+              <div className="text-light text-left font-size-13 flex-1">
+                tresillo
+              </div>
+              <div className="flex flex-1">
+                <button
+                  onClick={() => setLibraryRhythm(Rhythms.Tresillo)}
+                  className="filled small full"
+                >
+                  tresillo
+                </button>
+              </div>
+            </section>
           </div>
         </Tabs.Tab>
       </Tabs>

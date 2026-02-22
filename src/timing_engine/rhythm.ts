@@ -246,7 +246,7 @@ export class Rhythm extends Emitter<RhythmEvents> {
         );
       };
     } else {
-      this.emit('beatChange', tempBeat);
+      // this.emit('beatChange', tempBeat);
     }
   }
 
